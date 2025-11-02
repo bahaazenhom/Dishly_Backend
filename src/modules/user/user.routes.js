@@ -34,18 +34,18 @@ router.post('/register',validationMiddleware(createUserSchema),userController.re
 
 /**
  * @swagger
- * /user/confirm-email/{token}:
+ * /user/confirm-email/{userId}:
  *   get:
  *     tags: [User]
  *     summary: Confirm user email
  *     parameters:
  *       - in: path
- *         name: token
+ *         name: userId
  *         required: true
  *         schema: { type: string }
  *     responses:
  *       200: { description: Email confirmed }
- *       400: { description: Invalid token }
+ *       400: { description: Invalid userId }
  */
 router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),userController.confirmEmail);
 

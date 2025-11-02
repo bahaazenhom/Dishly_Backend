@@ -15,7 +15,7 @@ export const createUserSchema = {
 
 export const confirmEmailSchema = {
     params: Joi.object({
-        token: Joi.string().required()
+        userId: Joi.string().required()
     })
 }
 

@@ -30,9 +30,13 @@ export class UserController {
             if(!userId){
                 return next(new ErrorClass('userId is required',400,'Validation Error'));
             }
+            const updatedUser = await userService.updateUser(userId,{isConfirmed:true});
             const accessToken = generateAccessToken({userId:updatedUser._id});
             const refreshToken = generateRefreshToken({userId:updatedUser._id});
-            const updatedUser = await userService.updateUser(userId,{isConfirmed:true,refreshToken});
+            
+            // Update user with refresh token
+            await userService.updateUser(userId,{refreshToken});
+            
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: true,
