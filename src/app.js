@@ -29,6 +29,21 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check endpoint to verify email configuration
+app.get('/health', (req, res) => {
+  const emailConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+  res.json({
+    status: 'ok',
+    database: 'connected',
+    email: {
+      configured: emailConfigured,
+      user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'not set',
+      service: 'gmail'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // register routes
 app.use('/user', userRouter);
 app.use('/menu-items', menuItemRouter);
