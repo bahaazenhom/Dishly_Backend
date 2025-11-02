@@ -12,6 +12,8 @@ export const auth = () => {
         new ErrorClass("Token is required", 404, "Token is required")
       );
     }
+    console.log(token);
+    
     // check if token starts with prefix
     if (!token.startsWith(process.env.PREFIX_SECRET)) {
       return next(new ErrorClass("Invalid token", 400, "Invalid token"));
