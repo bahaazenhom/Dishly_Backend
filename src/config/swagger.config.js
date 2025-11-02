@@ -12,7 +12,11 @@ const options = {
     servers: [
       {
         url: 'https://fullsnack.obl.ee',
-        description: 'Development server',
+        description: 'Production server',
+      },
+      {
+        url: 'http://localhost:5000',
+        description: 'Local development server',
       },
     ],
     components: {
