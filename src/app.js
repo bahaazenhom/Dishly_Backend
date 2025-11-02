@@ -51,12 +51,12 @@ app.get('/health', (req, res) => {
 });
 
 // register routes
-//app.use('/user', userRouter);
-//app.use('/menu-items', menuItemRouter);
-// app.use('/offers'//, offerRouter);
-// app.use('/comment//s', commentRouter);
-// app.use('/cart',  cartRouter);
-// app.use('/orders', orderRouter);
+app.use('/user', userRouter);
+app.use('/menu-items', menuItemRouter);
+app.use('/offers', offerRouter);
+app.use('/comments', commentRouter);
+app.use('/cart',  cartRouter);
+app.use('/orders', orderRouter);
  
 // global error handler (must be after routes)
 app.use(globaleResponse);
