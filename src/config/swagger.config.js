@@ -71,6 +71,53 @@ const options = {
             rating: { type: 'number' },
           },
         },
+        Cart: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            user: { type: 'string', description: 'User ID reference' },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  menuItem: { type: 'string', description: 'Menu item ID reference' },
+                  quantity: { type: 'number', minimum: 1 },
+                },
+              },
+            },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        Order: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            user: { type: 'string', description: 'User ID reference' },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  menuItem: { type: 'string', description: 'Menu item ID reference' },
+                  quantity: { type: 'number', minimum: 1 },
+                },
+              },
+            },
+            totalAmount: { type: 'number', minimum: 0 },
+            status: {
+              type: 'string',
+              enum: ['pending', 'confirmed', 'preparing', 'completed', 'cancelled'],
+            },
+            paymentMethod: {
+              type: 'string',
+              enum: ['cash', 'card', 'online'],
+            },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
       },
     },
   },
