@@ -14,7 +14,7 @@ export class UserService {
             const refreshToken = generateRefreshToken({ userId: user._id });
 
             // confirmation Link
-            const confirmationLink = `http://localhost:5000/user/confirm-email/${accessToken}`;
+            const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${accessToken}`;
             // send email
             const isEmailSent = await sendMail({
                 to: user.email,
