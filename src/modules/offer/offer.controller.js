@@ -1,4 +1,4 @@
-import {OfferService} from "../offer/service.js";
+import {OfferService} from "./offer.service.js";
 const offerService = new OfferService();
 
 

@@ -1,7 +1,7 @@
 import { auth } from "../../middlewares/authentication.middleware.js";
 import { authorizationMiddleware } from "../../middlewares/authorization.middleware.js";
 import { systemRoles } from "../../utils/system-roles.util.js";
-import { offerController } from "./controller.js";
+import { offerController } from "./offer.controller.js";
 import { errorHandler } from "../../middlewares/error.middleware.js";
 import express from "express";
 const router = express.Router();

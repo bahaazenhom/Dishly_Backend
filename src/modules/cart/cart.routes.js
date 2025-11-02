@@ -1,20 +1,20 @@
 import express from "express";
-import { errorHandler } from "../middlewares/error.middleware.js";
-import { validationMiddleware } from "../middlewares/validation.middleware.js";
+import { errorHandler } from "../../middlewares/error.middleware.js";
+import { validationMiddleware } from "../../middlewares/validation.middleware.js";
 import {
   addCartItem,
   getCart,
   updateCartItem,
   removeCartItem,
   clearUserCart,
-} from "../controllers/cart.controller.js";
+} from "./cart.controller.js";
 import {
   addItemSchema,
   updateItemSchema,
   removeItemSchema,
   getCartSchema,
   clearCartSchema,
-} from "../validations/cart.validation.js";
+} from "./cart.validation.js";
 
 const router = express.Router();
 

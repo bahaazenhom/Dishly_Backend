@@ -4,8 +4,8 @@ import {
   getOrderById,
   createMockPaymentIntent,
   confirmMockPaymentIntent,
-} from "../services/order.service.js";
-import Order from "../models/order.model.js";
+} from "./order.service.js";
+import Order from "../../models/order.model.js";
 
 export const checkout = async (req, res) => {
   const { userId, paymentMethod = "cash" } = req.body;

@@ -1,4 +1,4 @@
-import { CommentController } from "./controller.js";
+import { CommentController } from "./comment.controller.js";
 import express from "express";
 import { auth } from "../../middlewares/authentication.middleware.js";
 import { authorizationMiddleware } from "../../middlewares/authorization.middleware.js";

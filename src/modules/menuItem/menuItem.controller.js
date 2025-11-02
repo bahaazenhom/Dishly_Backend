@@ -1,5 +1,5 @@
-import {MenuItemService} from "./service.js";
-import {OfferService} from "../offer/service.js";
+import {MenuItemService} from "./menuItem.service.js";
+import {OfferService} from "../offer/offer.service.js";
 const menuItemService = new MenuItemService();
 const offerService = new OfferService();
 export class MenuItemController {

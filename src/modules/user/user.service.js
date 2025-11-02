@@ -1,6 +1,6 @@
 import User from '../../models/user.model.js';
 import { ErrorClass } from '../../utils/error.util.js';
-import {signToken} from '../../utils/jwt.util.js';
+import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.util.js';
 import {sendMail} from '../../utils/mail.util.js';
 
 export class UserService {
@@ -10,10 +10,11 @@ export class UserService {
         try {
             
             const user =new User(userData);
-            const token = signToken({ userId: user._id });
+            const accessToken = generateAccessToken({ userId: user._id });
+            const refreshToken = generateRefreshToken({ userId: user._id });
+
             // confirmation Link
-            
-            const confirmationLink = `http://localhost:5000/user/confirm-email/${token}`;
+            const confirmationLink = `http://localhost:5000/user/confirm-email/${accessToken}`;
             // send email
             const isEmailSent = await sendMail({
                 to: user.email,
@@ -24,8 +25,9 @@ export class UserService {
             if (isEmailSent.rejected.length) {
                 return res.status(400).json({ message: "Email not sent" });
             }
+            user.refreshToken = refreshToken;
             await user.save();
-            return token;
+            return {accessToken,refreshToken};
         }
         catch (error) {
             throw new ErrorClass('Failed to create user', 500, error.message, 'UserService.createUser');
@@ -38,6 +40,14 @@ export class UserService {
             return user;
         } catch (error) {
             throw new ErrorClass('Failed to get user', 500, error.message, 'UserService.getUserByEmail');
+        }
+    }
+    async getUserById(userId) {
+        try {
+            const user = await User.findById(userId);   
+            return user;
+        } catch (error) {
+            throw new ErrorClass('Failed to get user', 500, error.message, 'UserService.getUserById');
         }
     }
     

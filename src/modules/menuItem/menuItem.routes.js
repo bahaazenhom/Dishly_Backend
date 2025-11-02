@@ -1,5 +1,5 @@
 import express from 'express';
-import { MenuItemController } from './controller.js';
+import { MenuItemController } from './menuItem.controller.js';
 import { auth } from '../../middlewares/authentication.middleware.js';
 import { authorizationMiddleware } from '../../middlewares/authorization.middleware.js';
 import { systemRoles } from '../../utils/system-roles.util.js';

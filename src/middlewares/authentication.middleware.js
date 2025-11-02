@@ -1,5 +1,5 @@
 import User from "../models/user.model.js";
-import { verify } from "../utils/jwt.util.js";
+import { verifyAccessToken } from "../utils/jwt.util.js";
 import { ErrorClass } from "../utils/error.util.js";
 
 export const auth = () => {
@@ -20,7 +20,7 @@ export const auth = () => {
     const originalToken = token.split(" ")[1];
 
     // verify token
-    const data = verify(originalToken);
+    const data = verifyAccessToken(originalToken);
     // check if token payload has userId
     if (!data?.userId) {
       return next(
