@@ -10,11 +10,8 @@ export class UserService {
         try {
             
             const user =new User(userData);
-            const accessToken = generateAccessToken({ userId: user._id });
-            const refreshToken = generateRefreshToken({ userId: user._id });
-
             // confirmation Link
-            const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${accessToken}`;
+            const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
             // send email
             const isEmailSent = await sendMail({
                 to: user.email,
@@ -25,9 +22,8 @@ export class UserService {
             if (isEmailSent.rejected.length) {
                 return res.status(400).json({ message: "Email not sent" });
             }
-            user.refreshToken = refreshToken;
             await user.save();
-            return {accessToken,refreshToken};
+            return user;
         }
         catch (error) {
             throw new ErrorClass('Failed to create user', 500, error.message, 'UserService.createUser');

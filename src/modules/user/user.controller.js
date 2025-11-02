@@ -16,16 +16,8 @@ export class UserController {
             if(existingUser){
                 return next(new ErrorClass('Email already in use',409,'Conflict Error'));
             }
-            const {accessToken,refreshToken} = await userService.createUser({fullName,email,password,phone});
-            // set cookie
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: true, // use HTTPS in production
-                sameSite: "strict",
-                path: "/user/refresh", // restrict path
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            }); 
-            res.status(201).json({message:'User registered successfully',userToken:accessToken});
+            const user = await userService.createUser({fullName,email,password,phone,gender,age});
+            res.status(201).json({message:"User created. Please confirm your name to activate your account.",userId:user._id});
         }catch(error){
             next(error);
         }
@@ -33,16 +25,22 @@ export class UserController {
 
     async confirmEmail(req, res, next) {
         try{
-            const {token} = req.params;
-            if(!token){
-                return next(new ErrorClass('Token is required',400,'Validation Error'));
+            const {userId} = req.params;
+            if(!userId){
+                return next(new ErrorClass('userId is required',400,'Validation Error'));
             }
-            const payload = verify(token);
-            if(!payload?.userId){
-                return next(new ErrorClass('Invalid token payload',400,'Validation Error'));
-            }
-            const updatedUser = await userService.updateUser(payload.userId,{isConfirmed:true});
-            res.status(200).json({message:'Email confirmed successfully',updatedUser});
+            const accessToken = generateAccessToken({userId:updatedUser._id});
+            const refreshToken = generateRefreshToken({userId:updatedUser._id});
+            const updatedUser = await userService.updateUser(userId,{isConfirmed:true,refreshToken});
+            res.cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "strict",
+                path: "/api/auth/refresh",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            });
+            
+            res.json({ message: "Email confirmed", accessToken });
         }
         catch(error){
             next(error);
