@@ -1,6 +1,6 @@
-import Order from "../models/order.model.js";
-import Cart from "../models/cart.model.js";
-import MenuItem from "../models/menuItem.model.js";
+import Order from "../../models/order.model.js";
+import Cart from "../../models/cart.model.js";
+import MenuItem from "../../models/menuItem.model.js";
 
 export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {}) {
   const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
