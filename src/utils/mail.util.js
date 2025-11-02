@@ -1,16 +1,11 @@
 import sgMail from "@sendgrid/mail";
 
-// Initialize SendGrid
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("Missing SENDGRID_API_KEY in environment variables.");
-}
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-console.log("📧 Email Configuration: Using Twilio SendGrid");
 
 // Main reusable function
 export async function sendMail({ to, subject, html }) {
-  try {
+  try {  
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    console.log("📧 Email Configuration: Using Twilio SendGrid");
     const msg = {
       to,
       from: process.env.SENDGRID_FROM_EMAIL || "no-reply@yourdomain.com",
