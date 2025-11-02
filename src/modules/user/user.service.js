@@ -10,6 +10,7 @@ export class UserService {
         try {
             
             const user =new User(userData);
+            console.log(user._id);
             // confirmation Link
             const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
             // send email
@@ -49,7 +50,7 @@ export class UserService {
     
     async updateUser(userId, updateData) {
         try {
-            const user =  await UserfindById(userId);
+            const user =  await User.findById(userId);
             if (!user) {
                 throw new ErrorClass('User not found', 404, { userId }, 'UserService.updateUser');
             }
