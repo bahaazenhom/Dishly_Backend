@@ -1,6 +1,6 @@
 import { UserService } from "./user.service.js";
 import { ErrorClass } from "../../utils/error.util.js";
-import { generateAccessToken, verifyRefreshToken } from "../../utils/jwt.util.js"; 
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.util.js"; 
 import { comparePassword } from "../../utils/hash.util.js";
 const userService = new UserService();
 export class UserController {
