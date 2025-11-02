@@ -10,7 +10,6 @@ export class UserService {
         try {
             
             const user =new User(userData);
-            console.log(user._id);
             // confirmation Link
             await user.save();
             const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
@@ -21,7 +20,7 @@ export class UserService {
                 html: `<a href="${confirmationLink}">Click here to confirm your email</a>`,
             });
         
-            if (isEmailSent.rejected.length) {
+            if (isEmailSent?.rejected?.length) {
                 return res.status(400).json({ message: "Email not sent" });
             }
             return user;
