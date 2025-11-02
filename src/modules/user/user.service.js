@@ -12,6 +12,7 @@ export class UserService {
             const user =new User(userData);
             console.log(user._id);
             // confirmation Link
+            await user.save();
             const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
             // send email
             const isEmailSent = await sendMail({
@@ -23,7 +24,6 @@ export class UserService {
             if (isEmailSent.rejected.length) {
                 return res.status(400).json({ message: "Email not sent" });
             }
-            await user.save();
             return user;
         }
         catch (error) {
