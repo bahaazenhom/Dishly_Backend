@@ -3,27 +3,31 @@ import nodemailer from "nodemailer";
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth:{
-        user:"abdofatah410@gmail.com",
-        pass:"mwhypmsyhmuggviq"
+        user: process.env.EMAIL_USER || "abdofatah410@gmail.com",
+        pass: process.env.EMAIL_PASS || "mwhypmsyhmuggviq"
     },
     tls: {
-    // ✅ Allow self-signed certificates if needed
-    rejectUnauthorized: false,
-  }
+        rejectUnauthorized: false,
+    }
 });
 
 export async function sendMail({ to, subject, html }) {
   try {
     const info = await transporter.sendMail({
-      from:"abdofatah410@gmail.com",
+      from: process.env.EMAIL_USER || "abdofatah410@gmail.com",
       to,
       subject,
       html
     });
+    console.log(`✅ Email sent successfully to ${to}:`, info.messageId);
     return info;
   } catch (err) {
-    // Log and rethrow so caller can handle (e.g., continue without failing request)
-    console.error("Mail send failed:", err);
+    console.error("❌ Mail send failed:", {
+      error: err.message,
+      code: err.code,
+      command: err.command,
+      response: err.response
+    });
     throw err;
   }
 }
