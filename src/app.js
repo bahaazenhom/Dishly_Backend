@@ -31,14 +31,20 @@ app.get('/', (req, res) => {
 
 // Health check endpoint to verify email configuration
 app.get('/health', (req, res) => {
-  const emailConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+  const useSendGrid = !!process.env.SENDGRID_API_KEY;
+  const emailConfigured = useSendGrid 
+    ? !!process.env.SENDGRID_API_KEY 
+    : !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+  
   res.json({
     status: 'ok',
     database: 'connected',
     email: {
       configured: emailConfigured,
-      user: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'not set',
-      service: 'gmail'
+      service: useSendGrid ? 'SendGrid' : 'Gmail',
+      user: useSendGrid 
+        ? (process.env.SENDGRID_FROM_EMAIL || 'not set')
+        : (process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'not set')
     },
     timestamp: new Date().toISOString()
   });
