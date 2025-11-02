@@ -1,6 +1,5 @@
 import User from '../../models/user.model.js';
 import { ErrorClass } from '../../utils/error.util.js';
-import {generateAccessToken, generateRefreshToken} from '../../utils/jwt.util.js';
 import {sendMail} from '../../utils/mail.util.js';
 
 export class UserService {
@@ -8,21 +7,22 @@ export class UserService {
 
     async createUser(userData) {
         try {
-            
-            const user =new User(userData);
-            // confirmation Link
+            const user = new User(userData);
+
+            // Save user to database first
+            await user.save();
+
+            // Send email asynchronously (non-blocking) after user is saved
             const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
-            // send email
-            const isEmailSent = await sendMail({
+            sendMail({
                 to: user.email,
                 subject: "Welcome to our app",
                 html: `<a href="${confirmationLink}">Click here to confirm your email</a>`,
+            }).catch(err => {
+                // Log error but don't fail the registration
+                console.error('Failed to send confirmation email:', err.message);
             });
-        
-            if (isEmailSent.rejected.length) {
-                return res.status(400).json({ message: "Email not sent" });
-            }
-            await user.save();
+
             return user;
         }
         catch (error) {
