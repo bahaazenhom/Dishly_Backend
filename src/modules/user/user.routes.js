@@ -47,7 +47,7 @@ router.post('/register',validationMiddleware(createUserSchema),userController.re
  *       200: { description: Email confirmed }
  *       400: { description: Invalid token }
  */
-router.get('/confirm-email/:token',validationMiddleware(confirmEmailSchema),userController.confirmEmail);
+router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),userController.confirmEmail);
 
 /**
  * @swagger
