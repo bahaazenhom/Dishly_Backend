@@ -25,7 +25,7 @@ export class UserController {
 
     async confirmEmail(req, res, next) {
         try{
-            const {userId} = req.params;
+            const userId = req.params;
             console.log(req.params);
             if(!userId){
                 return next(new ErrorClass('userId is required',400,'Validation Error'));
