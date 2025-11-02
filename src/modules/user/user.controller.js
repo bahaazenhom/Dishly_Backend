@@ -25,12 +25,15 @@ export class UserController {
 
     async confirmEmail(req, res, next) {
         try{
-            const userId = req.params;
-            console.log(req.params);
+            const { userId } = req.params;
+            console.log("User ID from params:", userId);
             if(!userId){
                 return next(new ErrorClass('userId is required',400,'Validation Error'));
             }
             const updatedUser = await userService.updateUser(userId,{isConfirmed:true});
+            if (!updatedUser) {
+                return next(new ErrorClass('User not found', 404, 'Validation Error'));
+            }
             const accessToken = generateAccessToken({userId:updatedUser._id});
             const refreshToken = generateRefreshToken({userId:updatedUser._id});
             
