@@ -18,6 +18,21 @@ export const confirmEmailSchema = {
         userId: Joi.string().required()
     })
 }
+export const refreshTokenSchema = {
+    body: Joi.object({
+        refreshToken: Joi.string().required()
+    })
+}
+export const logoutUserSchema = {
+    body: Joi.object({
+        refreshToken: Joi.string().required()
+    })
+}
+export const getUserByIdSchema = {
+    params: Joi.object({
+        userId: Joi.string().required()
+    })
+}
 
 export const loginUserSchema = {
     body: Joi.object({

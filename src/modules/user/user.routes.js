@@ -1,7 +1,7 @@
 import {Router} from "express";
 import {UserController} from "./user.controller.js";
 import {validationMiddleware} from "../../middlewares/validation.middleware.js";
-import { confirmEmailSchema, createUserSchema, loginUserSchema } from "./user.validation.js";
+import { confirmEmailSchema, createUserSchema, getUserByIdSchema, loginUserSchema, refreshTokenSchema } from "./user.validation.js";
 const router = Router();
 const userController = new UserController();
 
@@ -71,7 +71,8 @@ router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),use
  */
 router.post('/login',validationMiddleware(loginUserSchema),userController.loginUser);
 
-router.post('/refresh',userController.refreshToken);
-router.post('/logout',userController.logoutUser);
+router.post('/refresh',validationMiddleware(refreshTokenSchema),userController.refreshToken);
+router.post('/logout',validationMiddleware(loginUserSchema),userController.logoutUser);
+router.get('/:userId',validationMiddleware(getUserByIdSchema),userController.getUserById);
 
 export default router;

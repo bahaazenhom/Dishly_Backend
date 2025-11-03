@@ -53,6 +53,22 @@ export class UserController {
             next(error);
         }
     }
+    async getUserById(req, res, next) {
+        try{
+            const { userId } = req.params;
+            if(!userId){
+                return next(new ErrorClass('userId is required',400,'Validation Error'));
+            }
+            const user = await userService.getUserById(userId);
+            if(!user){
+                return next(new ErrorClass('User not found',404,'Not Found Error'));
+            }
+            res.status(200).json({user});
+        }
+        catch(error){
+            next(error);
+        }
+    }
     async loginUser(req, res, next) {
         try{
             const {email,password} = req.body;
