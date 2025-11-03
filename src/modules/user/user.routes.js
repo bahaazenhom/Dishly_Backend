@@ -71,4 +71,7 @@ router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),use
  */
 router.post('/login',validationMiddleware(loginUserSchema),userController.loginUser);
 
+router.post('/refresh',userController.refreshToken);
+router.post('/logout',userController.logoutUser);
+
 export default router;

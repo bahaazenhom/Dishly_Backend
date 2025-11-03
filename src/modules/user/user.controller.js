@@ -25,8 +25,7 @@ export class UserController {
 
     async confirmEmail(req, res, next) {
         try{
-            const { userId } = req.params;
-            console.log("User ID from params:", userId);
+            const { userId } = req.params; 
             if(!userId){
                 return next(new ErrorClass('userId is required',400,'Validation Error'));
             }
@@ -44,7 +43,7 @@ export class UserController {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
-                path: "/api/auth/refresh",
+                path: "/user/refresh",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
             

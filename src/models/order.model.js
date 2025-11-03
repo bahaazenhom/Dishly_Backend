@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema(
       {
         menuItem: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Menu",
+          ref: "MenuItem",
           required: true,
         },
         quantity: {
