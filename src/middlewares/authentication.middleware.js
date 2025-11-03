@@ -5,22 +5,21 @@ import { ErrorClass } from "../utils/error.util.js";
 export const auth = () => {
   return async (req, res, next) => {
     // destruct token from headers
-    const { token } = req.headers;
+    const { authorization } = req.headers;
     // check if token is exists
     console.log("Token from header:", req.headers);
-    if (!token) {
+    if (!authorization) {
       return next(
         new ErrorClass("Token is required", 404, "Token is required")
       );
-    }
-    console.log(token);
+    } 
     
     // check if token starts with prefix
-    if (!token.startsWith(process.env.PREFIX_SECRET)) {
+    if (!authorization.startsWith(process.env.PREFIX_SECRET)) {
       return next(new ErrorClass("Invalid token", 400, "Invalid token"));
     }
     // retrieve original token after adding the prefix
-    const originalToken = token.split(" ")[1];
+    const originalToken = authorization.split(" ")[1];
 
     // verify token
     const data = verifyAccessToken(originalToken);
