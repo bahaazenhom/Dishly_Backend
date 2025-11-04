@@ -6,7 +6,7 @@ import {
   confirm,
   listUserOrders,
   getOrder,
-  getOrderBySession,
+  checkOrderStatusWithSessionId,
 } from "./order.controller.js";
 import {
   checkoutSchema,
@@ -157,11 +157,11 @@ router.get(
 
 /**
  * @swagger
- * /orders/success:
+ * /orders/checkOrderStatus:
  *   get:
  *     tags: [Orders]
- *     summary: Get order by Stripe session ID (Public - for payment success redirect)
- *     description: Called by frontend after successful Stripe payment. Returns order details using session_id from URL.
+ *     summary: Check order status by Stripe session ID (Public - for payment verification)
+ *     description: Verifies payment status with Stripe and returns order details. Called by frontend after Stripe redirects to success URL. Only returns order if payment status is 'paid'.
  *     parameters:
  *       - in: query
  *         name: sessionId
@@ -171,7 +171,7 @@ router.get(
  *         example: "cs_test_b1NfjAGehxgGvWJPFiwlstWeX7oxcoUnBzfXFaDRyMVfJadA5RdtNes0jj"
  *     responses:
  *       200: 
- *         description: Order retrieved successfully
+ *         description: Payment verified and order retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -179,12 +179,23 @@ router.get(
  *               properties:
  *                 message: { type: string, example: "Payment successful! Your order is confirmed." }
  *                 order: { $ref: '#/components/schemas/Order' }
- *       400: { description: Session ID is required }
+ *                 paymentStatus: { type: string, example: "paid", enum: [paid, unpaid, no_payment_required] }
+ *       400: 
+ *         description: Session ID missing or payment not completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "Payment not completed" }
+ *                 paymentStatus: { type: string, example: "unpaid" }
+ *                 error: { type: string }
  *       404: { description: Order not found for this session }
+ *       500: { description: Failed to verify payment or fetch order }
  */
 router.get(
-  "/success",
-  errorHandler(getOrderBySession)
+  "/checkOrderStatus",
+  errorHandler(checkOrderStatusWithSessionId)
 );
 
 export default router;
