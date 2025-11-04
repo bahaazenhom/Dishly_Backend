@@ -25,7 +25,7 @@ const menuItemSchema = new mongoose.Schema(
       default:0
     },
     isAvailable: { type: Boolean, default: true },
-    imageUrl: { type: String, trim: true },
+    imageUrl: { type: String, trim: true,required:true },
   },
   { timestamps: true }
 );

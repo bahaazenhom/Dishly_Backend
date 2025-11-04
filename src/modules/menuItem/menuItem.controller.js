@@ -1,11 +1,31 @@
 import {MenuItemService} from "./menuItem.service.js";
 import {OfferService} from "../offer/offer.service.js";
+import { configureCloudinary } from "../../config/cloudinary.config.js";
 const menuItemService = new MenuItemService();
 const offerService = new OfferService();
 export class MenuItemController {
     async createMenuItem(req, res) {
         try {
-            const menuItemData = req.body;
+            const {name,description,price,category,imageUrl,isAvailable} = req.body;
+            if (!imageUrl)
+            return next(new ErrorClass("Image URL is required", 400, "Validation Error"));
+
+            // Upload image to Cloudinary 
+            const uploadResponse = await configureCloudinary().uploader.upload(imageUrl, {
+                folder: "fullSnack/menuItems",
+                use_filename: true,
+            });
+            console.log("-->",uploadResponse);
+            
+            const menuItemData = {
+                name,
+                description,
+                price,
+                imageUrl: uploadResponse.secure_url,
+                category,                    
+                isAvailable
+            };
+
             const item = await menuItemService.createMenuItem(menuItemData);
             res.status(201).json(item);
         } catch (error) {
