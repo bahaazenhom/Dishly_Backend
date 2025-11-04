@@ -1,3 +1,4 @@
+import { configureCloudinary } from "../../config/cloudinary.config.js";
 import {OfferService} from "./offer.service.js";
 const offerService = new OfferService();
 
@@ -14,7 +15,20 @@ export class offerController {
     }
     async createOffer(req, res) {
         try {
-            const offerData = req.body;
+            const {title,imageUrl,description,discountPercent,menuItems,isActive} = req.body;
+            const data = await configureCloudinary().uploader.upload(imageUrl, {
+                folder: "fullSnack/offers",
+                use_filename: true,
+            });
+
+            const offerData = {
+                title,
+                imageUrl: data.secure_url,
+                description,
+                discountPercent,
+                menuItems,
+                isActive
+            };
             const offer = await offerService.createOffer(offerData);
             res.status(201).json(offer);
         } catch (error) {

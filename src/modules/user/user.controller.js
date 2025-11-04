@@ -7,16 +7,16 @@ export class UserController {
 
     async registerUser(req, res, next) {
         try{
-            const {fullName,email,password,gender,age,phone} = req.body;
+            const {fullName,email,password,age,phone} = req.body;
             
-            if(!fullName || !email || !password||!gender||!age){
+            if(!fullName || !email || !password||!age){
                 return next(new ErrorClass('Full name, gender, age, email and password are required',400,'Validation Error','user/register'));
             }
             const existingUser = await userService.getUserByEmail(email);
             if(existingUser){
                 return next(new ErrorClass('Email already in use',409,'Conflict Error'));
             }
-            const user = await userService.createUser({fullName,email,password,phone,gender,age});
+            const user = await userService.createUser({fullName,email,password,phone,age});
             res.status(201).json({message:"User created. Please confirm your name to activate your account.",userId:user._id});
         }catch(error){
             next(error);

@@ -25,7 +25,7 @@ const menuItemController = new MenuItemController();
  *       401: { description: Unauthorized }
  *       403: { description: Admin access required }
  */
-router.post('/',menuItemController.createMenuItem);
+router.post('/',errorHandler(auth()),errorHandler(authorizationMiddleware(systemRoles.ADMIN)),menuItemController.createMenuItem);
 
 /**
  * @swagger
