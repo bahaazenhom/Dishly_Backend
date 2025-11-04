@@ -36,12 +36,13 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
   let stripeSession = null;
   if (paymentMethod === "card") {
     console.log('Creating Stripe session for products:', products);
-    stripeSession = await paymentService.createCheckoutSession(products);
+    // Pass orderId to Stripe so webhook can identify which order to confirm
+    stripeSession = await paymentService.createCheckoutSession(products, order._id.toString());
     console.log('Stripe session created:', {
       id: stripeSession?.id,
       url: stripeSession?.url
     });
-    // Optionally save session ID to order for tracking
+    // Save session ID to order for tracking
     order.stripeSessionId = stripeSession.id;
     await order.save();
   }
