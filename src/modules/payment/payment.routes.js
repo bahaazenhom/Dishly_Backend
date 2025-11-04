@@ -50,24 +50,4 @@ const router = express.Router();
  */
 router.post("/checkout", validationMiddleware(checkoutSchema), auth(), authorizationMiddleware(systemRoles.CUSTOMER), paymentController.createCheckoutSession);
 
-/**
- * @swagger
- * /payment/webhook:
- *   post:
- *     tags: [Payment]
- *     summary: Stripe webhook for payment events (Stripe only - no auth)
- *     description: This endpoint is called by Stripe when payment events occur. It auto-confirms orders when payment succeeds.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             description: Stripe webhook event payload
- *     responses:
- *       200: { description: Webhook received }
- *       400: { description: Webhook verification failed }
- */
-router.post("/webhook", express.raw({ type: 'application/json' }), paymentController.handleWebhook);
-
 export default router;

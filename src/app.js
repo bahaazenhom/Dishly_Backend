@@ -10,6 +10,7 @@ import paymentRouter from "./modules/payment/payment.routes.js";
 import orderRouter from "./modules/order/order.routes.js";
 import {globaleResponse} from "./middlewares/error.middleware.js";
 import { swaggerUi, swaggerSpec } from "./config/swagger.config.js";
+import paymentController from "./modules/payment/payment.controller.js";
 
 const app = express();
 
@@ -20,6 +21,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
+// Stripe webhook route MUST come before express.json() to receive raw body
+app.post('/payment/webhook', express.raw({ type: 'application/json' }), paymentController.handleWebhook);
 
 // global middlewares
 app.use(express.json());
