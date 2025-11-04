@@ -12,7 +12,6 @@ export const checkoutSchema = {
 export const confirmSchema = {
   body: Joi.object({
     orderId: objectId.required(),
-    paymentIntentId: Joi.string().required(),
   }),
 };
 

@@ -1,5 +1,6 @@
 import Cart from "../../models/cart.model.js";
 import MenuItem from "../../models/menuItem.model.js";
+import User from "../../models/user.model.js";
 
 export async function getCartByUser(userId) {
   let cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
@@ -15,6 +16,10 @@ export async function addItem(userId, menuItemId, quantity = 1) {
   if (!menuItem || !menuItem.isAvailable) {
     throw new Error("Menu item not available");
   }
+
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
   const cart = await getCartByUser(userId);
   const existing = cart.items.find((i) => i.menuItem._id.toString() === menuItemId);
   if (existing) {

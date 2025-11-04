@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser"; 
 import userRouter from "./modules/user/user.routes.js";
 import menuItemRouter from "./modules/menuItem/menuItem.routes.js";
@@ -11,6 +12,14 @@ import {globaleResponse} from "./middlewares/error.middleware.js";
 import { swaggerUi, swaggerSpec } from "./config/swagger.config.js";
 
 const app = express();
+
+// CORS Configuration - Allow all origins
+app.use(cors({
+  origin: '*', // Allow all origins
+  credentials: true, // Allow cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+}));
 
 // global middlewares
 app.use(express.json());

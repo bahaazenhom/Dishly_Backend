@@ -3,12 +3,12 @@ import dotenv from "dotenv";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 class PaymentService {
-    async createCheckoutSession(products) {
+  async createCheckoutSession(products) {
     const lineItems = products.map((product) => ({
       price_data: {
         currency: "EGP",
         product_data: { name: product.name },
-        unit_amount: product.price*100 , // convert to cents
+        unit_amount: product.price * 100, // convert to cents
       },
       quantity: product.quantity,
     }));

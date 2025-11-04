@@ -27,7 +27,7 @@ const options = {
             securitySchemes: {
                 bearerAuth: {
                     type: 'http',
-                    scheme: 'bearer',
+                    scheme: 'bearer',   
                     bearerFormat: 'JWT',
                 },
             },
@@ -122,6 +122,7 @@ const options = {
                             type: 'string',
                             enum: ['cash', 'card', 'online'],
                         },
+                        stripeSessionId: { type: 'string', nullable: true, description: 'Stripe checkout session ID for card payments' },
                         createdAt: { type: 'string', format: 'date-time' },
                         updatedAt: { type: 'string', format: 'date-time' },
                     },

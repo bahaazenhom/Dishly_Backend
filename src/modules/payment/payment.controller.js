@@ -1,5 +1,5 @@
 import paymentService from "./payment.services.js";
-import {ErrorClass} from "../../utils/error.util.js";
+import { ErrorClass } from "../../utils/error.util.js";
 
 
 class PaymentController {

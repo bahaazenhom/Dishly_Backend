@@ -24,6 +24,7 @@ const router = express.Router();
  *   post:
  *     tags: [Orders]
  *     summary: Checkout and create order from cart (Customer only)
+ *     description: Creates an order from user's cart. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -36,10 +37,21 @@ const router = express.Router();
  *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               paymentMethod: { type: string, enum: [cash, card, online], example: "cash" }
  *     responses:
- *       201: { description: Order created successfully }
+ *       201: 
+ *         description: Order created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 order: { $ref: '#/components/schemas/Order' }
+ *                 checkoutUrl: { type: string, description: "Stripe checkout URL (only for card payment)" }
+ *                 sessionId: { type: string, description: "Stripe session ID (only for card payment)" }
  *       400: { description: Cart is empty or invalid }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
+ *       500: { description: Failed to create order }
  */
 router.post(
   "/checkout",
@@ -54,7 +66,8 @@ router.post(
  * /orders/confirm:
  *   post:
  *     tags: [Orders]
- *     summary: Confirm an order (Customer only)
+ *     summary: Confirm an order payment (Customer only)
+ *     description: Confirms an order after successful payment. Changes order status from 'pending' to 'confirmed'.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -66,7 +79,16 @@ router.post(
  *             properties:
  *               orderId: { type: string, example: "507f1f77bcf86cd799439011" }
  *     responses:
- *       200: { description: Order confirmed successfully }
+ *       200: 
+ *         description: Order confirmed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string }
+ *                 order: { $ref: '#/components/schemas/Order' }
+ *       400: { description: Failed to confirm order }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       404: { description: Order not found }

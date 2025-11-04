@@ -1,5 +1,6 @@
 import Order from "../../models/order.model.js";
 import Cart from "../../models/cart.model.js";
+import paymentService from "../payment/payment.services.js";
 
 export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {}) {
   const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
@@ -7,11 +8,20 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
 
   const items = [];
   let totalAmount = 0;
+  const products = [];
+
   for (const cartItem of cart.items) {
     const item = cartItem.menuItem;
     if (!item) continue;
     items.push({ menuItem: item._id, quantity: cartItem.quantity });
     totalAmount += item.price * cartItem.quantity;
+
+    // Prepare products for Stripe
+    products.push({
+      name: item.name,
+      price: item.price,
+      quantity: cartItem.quantity
+    });
   }
 
   const order = await Order.create({
@@ -22,10 +32,33 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
     paymentMethod,
   });
 
+  // If payment method is card, create Stripe checkout session
+  let stripeSession = null;
+  if (paymentMethod === "card") {
+    console.log('Creating Stripe session for products:', products);
+    stripeSession = await paymentService.createCheckoutSession(products);
+    console.log('Stripe session created:', {
+      id: stripeSession?.id,
+      url: stripeSession?.url
+    });
+    // Optionally save session ID to order for tracking
+    order.stripeSessionId = stripeSession.id;
+    await order.save();
+  }
+
+  // Clear cart after order creation
   cart.items = [];
   await cart.save();
 
-  return order.populate("items.menuItem");
+  console.log('Returning from createOrderFromCart:', {
+    hasOrder: !!order,
+    hasStripeSession: !!stripeSession
+  });
+
+  return {
+    order: await order.populate("items.menuItem"),
+    stripeSession
+  };
 }
 
 export async function getUserOrders(userId) {
@@ -38,10 +71,13 @@ export async function getOrderById(orderId) {
   return Order.findById(orderId).populate("items.menuItem");
 }
 
+export async function confirmOrder(orderId) {
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { status: "confirmed" },
+    { new: true }
+  ).populate("items.menuItem");
 
-export async function createMockPaymentIntent(amount, currency = "usd") {
-    
-}
-
-export async function confirmMockPaymentIntent(paymentIntentId) {
+  if (!order) throw new Error("Order not found");
+  return order;
 }
