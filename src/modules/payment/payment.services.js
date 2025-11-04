@@ -14,7 +14,6 @@ class PaymentService {
     }));
 
     const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:5000";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

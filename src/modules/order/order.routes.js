@@ -6,6 +6,7 @@ import {
   confirm,
   listUserOrders,
   getOrder,
+  getOrderBySession,
 } from "./order.controller.js";
 import {
   checkoutSchema,
@@ -152,6 +153,38 @@ router.get(
   auth(),
   authorizationMiddleware(["customer"]),
   errorHandler(getOrder)
+);
+
+/**
+ * @swagger
+ * /orders/success:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Get order by Stripe session ID (Public - for payment success redirect)
+ *     description: Called by frontend after successful Stripe payment. Returns order details using session_id from URL.
+ *     parameters:
+ *       - in: query
+ *         name: sessionId
+ *         required: true
+ *         schema: { type: string }
+ *         description: Stripe session ID from redirect URL
+ *         example: "cs_test_b1NfjAGehxgGvWJPFiwlstWeX7oxcoUnBzfXFaDRyMVfJadA5RdtNes0jj"
+ *     responses:
+ *       200: 
+ *         description: Order retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "Payment successful! Your order is confirmed." }
+ *                 order: { $ref: '#/components/schemas/Order' }
+ *       400: { description: Session ID is required }
+ *       404: { description: Order not found for this session }
+ */
+router.get(
+  "/success",
+  errorHandler(getOrderBySession)
 );
 
 export default router;

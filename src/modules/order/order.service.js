@@ -82,3 +82,7 @@ export async function confirmOrder(orderId) {
   if (!order) throw new Error("Order not found");
   return order;
 }
+
+export async function getOrderBySessionId(sessionId) {
+  return Order.findOne({ stripeSessionId: sessionId }).populate("items.menuItem");
+}
