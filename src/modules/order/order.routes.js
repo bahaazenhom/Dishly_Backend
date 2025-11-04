@@ -134,7 +134,7 @@ router.get(
  *   get:
  *     tags: [Orders]
  *     summary: Check order status by Stripe session ID (Public - for payment verification)
- *     description: Verifies payment status with Stripe and returns order details. Called by frontend after Stripe redirects to success URL. Only returns order if payment status is 'paid'.
+ *     description: Checks order status after Stripe redirect. Returns order details regardless of status. Called by frontend after Stripe redirects to success URL.
  *     parameters:
  *       - in: query
  *         name: sessionId
@@ -144,7 +144,7 @@ router.get(
  *         example: "cs_test_b1NfjAGehxgGvWJPFiwlstWeX7oxcoUnBzfXFaDRyMVfJadA5RdtNes0jj"
  *     responses:
  *       200: 
- *         description: Payment verified and order retrieved successfully
+ *         description: Order retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -152,19 +152,9 @@ router.get(
  *               properties:
  *                 message: { type: string, example: "Payment successful! Your order is confirmed." }
  *                 order: { $ref: '#/components/schemas/Order' }
- *                 paymentStatus: { type: string, example: "paid", enum: [paid, unpaid, no_payment_required] }
- *       400: 
- *         description: Session ID missing or payment not completed
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message: { type: string, example: "Payment not completed" }
- *                 paymentStatus: { type: string, example: "unpaid" }
- *                 error: { type: string }
+ *       400: { description: Session ID is required }
  *       404: { description: Order not found for this session }
- *       500: { description: Failed to verify payment or fetch order }
+ *       500: { description: Failed to fetch order }
  */
 router.get(
   "/checkOrderStatus",

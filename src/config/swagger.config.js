@@ -129,6 +129,44 @@ const options = {
                 },
             },
         },
+        paths: {
+            '/payment/webhook': {
+                post: {
+                    tags: ['Payment'],
+                    summary: 'Stripe webhook for payment events (Stripe only - no auth)',
+                    description: 'This endpoint is called by Stripe when payment events occur. It auto-confirms orders when payment succeeds. Must be registered in Stripe Dashboard with the endpoint URL.',
+                    requestBody: {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    description: 'Stripe webhook event payload (raw body)',
+                                },
+                            },
+                        },
+                    },
+                    responses: {
+                        200: {
+                            description: 'Webhook received and processed',
+                            content: {
+                                'application/json': {
+                                    schema: {
+                                        type: 'object',
+                                        properties: {
+                                            received: { type: 'boolean', example: true },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        400: {
+                            description: 'Webhook signature verification failed',
+                        },
+                    },
+                },
+            },
+        },
     },
     apis: ['./src/modules/**/*.routes.js'],
 };
