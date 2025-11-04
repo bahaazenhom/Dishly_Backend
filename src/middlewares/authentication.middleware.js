@@ -6,6 +6,7 @@ export const auth = () => {
   return async (req, res, next) => {
     // destruct token from headers
     const { authorization } = req.headers;
+    console.log("headers: "+req.headers);
     // check if token is exists 
     if (!authorization) {
       return next(
