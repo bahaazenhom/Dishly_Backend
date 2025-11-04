@@ -130,33 +130,6 @@ router.get(
 
 /**
  * @swagger
- * /orders/{orderId}:
- *   get:
- *     tags: [Orders]
- *     summary: Get order details by ID (Customer only)
- *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: orderId
- *         required: true
- *         schema: { type: string }
- *         description: Order ID
- *     responses:
- *       200: { description: Order details retrieved }
- *       401: { description: Unauthorized }
- *       403: { description: Customer access required }
- *       404: { description: Order not found }
- */
-router.get(
-  "/:orderId",
-  validationMiddleware(getOrderSchema),
-  auth(),
-  authorizationMiddleware(["customer"]),
-  errorHandler(getOrder)
-);
-
-/**
- * @swagger
  * /orders/checkOrderStatus:
  *   get:
  *     tags: [Orders]
@@ -196,6 +169,33 @@ router.get(
 router.get(
   "/checkOrderStatus",
   errorHandler(checkOrderStatusWithSessionId)
+);
+
+/**
+ * @swagger
+ * /orders/{orderId}:
+ *   get:
+ *     tags: [Orders]
+ *     summary: Get order details by ID (Customer only)
+ *     security: [{ bearerAuth: [] }]
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema: { type: string }
+ *         description: Order ID
+ *     responses:
+ *       200: { description: Order details retrieved }
+ *       401: { description: Unauthorized }
+ *       403: { description: Customer access required }
+ *       404: { description: Order not found }
+ */
+router.get(
+  "/:orderId",
+  validationMiddleware(getOrderSchema),
+  auth(),
+  authorizationMiddleware(["customer"]),
+  errorHandler(getOrder)
 );
 
 export default router;

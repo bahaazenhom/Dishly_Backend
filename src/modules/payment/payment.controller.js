@@ -32,7 +32,6 @@ class PaymentController {
         const session = event.data.object;
         const orderId = session.metadata.orderId;
 
-        console.log('💳 Payment successful for order:', orderId);
 
         if (orderId) {
           // Auto-confirm the order
@@ -42,14 +41,12 @@ class PaymentController {
             { new: true }
           );
 
-          console.log('✅ Order auto-confirmed:', orderId);
         }
       }
 
       // Return 200 to acknowledge receipt of the event
       res.json({ received: true });
     } catch (error) {
-      console.error('❌ Webhook error:', error.message);
       res.status(400).send(`Webhook Error: ${error.message}`);
     }
   }
