@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 class PaymentService {
-  async createCheckoutSession(products, orderId = null) {
+  async createCheckoutSession(products, orderId = null, userId = null) {
     const lineItems = products.map((product) => ({
       price_data: {
         currency: "EGP",
@@ -22,7 +22,8 @@ class PaymentService {
       success_url: `${baseUrl}/order-success?orderId=${orderId}`,
       cancel_url: `${baseUrl}/order-cancel`,
       metadata: {
-        orderId: orderId // Store orderId to identify which order to confirm
+        orderId: orderId, // Store orderId to identify which order to confirm
+        userId: userId,   // Store userId to identify the user
       },
     });
 
