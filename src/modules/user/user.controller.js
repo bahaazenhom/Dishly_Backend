@@ -38,7 +38,7 @@ export class UserController {
             
             // Update user with refresh token
             await userService.updateUser(userId,{refreshToken});
-            console.log(process.env.NODE_ENV);
+           
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Only use secure in production
