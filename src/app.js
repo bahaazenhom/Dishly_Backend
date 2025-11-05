@@ -14,7 +14,7 @@ import { swaggerUi, swaggerSpec } from "./config/swagger.config.js";
 import paymentController from "./modules/payment/payment.controller.js";
 
 const app = express();
-
+app.set('trust proxy', true);
 // CORS Configuration for development and production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
