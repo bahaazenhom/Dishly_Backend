@@ -15,6 +15,11 @@ export async function getCartByUser(userId) {
 }
 
 export async function addItem(userId, menuItemId, quantity = 1) {
+  // Support both single item and array of items
+  if (Array.isArray(menuItemId)) {
+    return addItems(userId, menuItemId);
+  }
+
   const menuItem = await MenuItem.findById(menuItemId);
   if (!menuItem || !menuItem.isAvailable) {
     throw new Error("Menu item not available");
@@ -52,6 +57,71 @@ export async function addItem(userId, menuItemId, quantity = 1) {
       originalPrice: menuItem.price,
       discountApplied: appliedDiscount
     });
+  }
+  
+  await cart.save();
+  return cart.populate("items.menuItem");
+}
+
+export async function addItems(userId, items) {
+  // items should be an array of objects: [{ menuItemId, quantity }]
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("Items must be a non-empty array");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  // Validate all menu items first
+  const menuItemIds = items.map(item => item.menuItemId);
+  const menuItems = await MenuItem.find({ 
+    _id: { $in: menuItemIds },
+    isAvailable: true 
+  });
+
+  if (menuItems.length !== items.length) {
+    throw new Error("One or more menu items not available");
+  }
+
+  // Create a map for quick lookup
+  const menuItemMap = new Map(menuItems.map(item => [item._id.toString(), item]));
+
+  const cart = await getCartByUser(userId);
+
+  // Process each item
+  for (const item of items) {
+    const { menuItemId, quantity = 1 } = item;
+    const menuItem = menuItemMap.get(menuItemId.toString());
+
+    if (!menuItem) continue;
+
+    // Check for active offers
+    const offer = await offerService.getActiveOffersForMenuItem(menuItemId);
+    
+    let finalPrice = menuItem.price;
+    let appliedDiscount = 0;
+    
+    if (offer) {
+      appliedDiscount = offer.discountPercent;
+      finalPrice = menuItem.price - (menuItem.price * (offer.discountPercent / 100));
+    }
+
+    const existing = cart.items.find((i) => i.menuItem._id.toString() === menuItemId.toString());
+    
+    if (existing) {
+      existing.quantity += quantity;
+      existing.priceAtAddition = finalPrice;
+      existing.originalPrice = menuItem.price;
+      existing.discountApplied = appliedDiscount;
+    } else {
+      cart.items.push({ 
+        menuItem: menuItemId, 
+        quantity,
+        priceAtAddition: finalPrice,
+        originalPrice: menuItem.price,
+        discountApplied: appliedDiscount
+      });
+    }
   }
   
   await cart.save();

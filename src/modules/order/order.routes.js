@@ -5,13 +5,12 @@ import {
   checkout,
   confirm,
   listUserOrders,
+  listAllOrders,
   getOrder,
-  checkOrderStatusWithSessionId,
 } from "./order.controller.js";
 import {
   checkoutSchema,
   confirmSchema,
-  listOrdersSchema,
   getOrderSchema,
 } from "./order.validation.js";
 import { auth } from "../../middlewares/authentication.middleware.js";
@@ -24,8 +23,8 @@ const router = express.Router();
  * /orders/checkout:
  *   post:
  *     tags: [Orders]
- *     summary: Checkout and create order from cart with offer prices (Customer only)
- *     description: Creates an order from user's cart using prices already calculated with active offers. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices.
+ *     summary: Checkout and create order from authenticated user's cart with offer prices (Customer only)
+ *     description: Creates an order from user's cart using prices already calculated with active offers. Requires customer information and delivery details. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -33,10 +32,13 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, paymentMethod]
+ *             required: [paymentMethod, customerFullName, customerEmail, deliveryAddress, phoneNumber]
  *             properties:
- *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               paymentMethod: { type: string, enum: [cash, card, online], example: "cash" }
+ *               customerFullName: { type: string, example: "John Doe Smith" }
+ *               customerEmail: { type: string, format: email, example: "john@example.com" }
+ *               deliveryAddress: { type: string, example: "123 Main St, Apt 4B, New York, NY 10001" }
+ *               phoneNumber: { type: string, example: "+1234567890" }
  *     responses:
  *       201: 
  *         description: Order created successfully with offer discounts applied
@@ -49,7 +51,7 @@ const router = express.Router();
  *                 order: { $ref: '#/components/schemas/Order' }
  *                 checkoutUrl: { type: string, description: "Stripe checkout URL with discounted prices (only for card payment)" }
  *                 sessionId: { type: string, description: "Stripe session ID (only for card payment)" }
- *       400: { description: Cart is empty or invalid }
+ *       400: { description: Cart is empty or validation error }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       500: { description: Failed to create order }
@@ -104,18 +106,12 @@ router.post(
 
 /**
  * @swagger
- * /orders/user/{userId}:
+ * /orders:
  *   get:
  *     tags: [Orders]
- *     summary: Get all orders for a user with pricing details (Customer only)
- *     description: Returns all orders with original prices, discounted prices, and discount percentages applied at time of purchase.
+ *     summary: Get all orders for authenticated user with pricing details (Customer only)
+ *     description: Returns all orders with original prices, discounted prices, and discount percentages applied at time of purchase. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema: { type: string }
- *         description: User ID
  *     responses:
  *       200: 
  *         description: List of user orders with price breakdown
@@ -132,8 +128,7 @@ router.post(
  *       403: { description: Customer access required }
  */
 router.get(
-  "/user/:userId",
-  validationMiddleware(listOrdersSchema),
+  "/",
   auth(),
   authorizationMiddleware(["customer"]),
   errorHandler(listUserOrders)
@@ -141,35 +136,32 @@ router.get(
 
 /**
  * @swagger
- * /orders/checkOrderStatus:
+ * /orders/all:
  *   get:
  *     tags: [Orders]
- *     summary: Check order status by Stripe session ID (Public - for payment verification)
- *     description: Checks order status after Stripe redirect. Returns order details regardless of status. Called by frontend after Stripe redirects to success URL.
- *     parameters:
- *       - in: query
- *         name: sessionId
- *         required: true
- *         schema: { type: string }
- *         description: Stripe session ID from redirect URL
- *         example: "cs_test_b1NfjAGehxgGvWJPFiwlstWeX7oxcoUnBzfXFaDRyMVfJadA5RdtNes0jj"
+ *     summary: Get all orders in the system (Admin only)
+ *     description: Returns all orders from all users. Only accessible by admin users. Includes user information (fullName, email) for each order.
+ *     security: [{ bearerAuth: [] }]
  *     responses:
  *       200: 
- *         description: Order retrieved successfully
+ *         description: List of all orders
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message: { type: string, example: "Payment successful! Your order is confirmed." }
- *                 order: { $ref: '#/components/schemas/Order' }
- *       400: { description: Session ID is required }
- *       404: { description: Order not found for this session }
- *       500: { description: Failed to fetch order }
+ *                 orders:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *       401: { description: Unauthorized }
+ *       403: { description: Admin access required }
  */
 router.get(
-  "/checkOrderStatus",
-  errorHandler(checkOrderStatusWithSessionId)
+  "/all",
+  auth(),
+  authorizationMiddleware(["admin"]),
+  errorHandler(listAllOrders)
 );
 
 /**

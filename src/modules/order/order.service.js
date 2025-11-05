@@ -3,7 +3,20 @@ import Cart from "../../models/cart.model.js";
 
 import paymentService from "../payment/payment.services.js";
 
-export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {}) {
+export async function createOrderFromCart(userId, orderDetails = {}) {
+  const { 
+    paymentMethod = "cash",
+    customerFullName,
+    customerEmail,
+    deliveryAddress,
+    phoneNumber
+  } = orderDetails;
+
+  // Validate required delivery details
+  if (!customerFullName || !customerEmail || !deliveryAddress || !phoneNumber) {
+    throw new Error("Customer information and delivery details are required");
+  }
+
   const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
   if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
 
@@ -44,6 +57,10 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
     totalAmount,
     status: paymentMethod === "cash" ? "confirmed" : "pending",
     paymentMethod,
+    customerFullName,
+    customerEmail,
+    deliveryAddress,
+    phoneNumber,
   });
 
   // If payment method is card, create Stripe checkout session
@@ -56,9 +73,6 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
       id: stripeSession?.id,
       url: stripeSession?.url
     });
-    // Save session ID to order for tracking
-    order.stripeSessionId = stripeSession.id;
-    await order.save();
   }
 
   // Clear cart after order creation
@@ -82,6 +96,13 @@ export async function getUserOrders(userId) {
     .sort({ createdAt: -1 });
 }
 
+export async function getAllOrders() {
+  return Order.find()
+    .populate("items.menuItem")
+    .populate("user", "fullName email")
+    .sort({ createdAt: -1 });
+}
+
 export async function getOrderById(orderId) {
   return Order.findById(orderId).populate("items.menuItem");
 }
@@ -95,8 +116,4 @@ export async function confirmOrder(orderId) {
 
   if (!order) throw new Error("Order not found");
   return order;
-}
-
-export async function getOrderBySessionId(sessionId) {
-  return Order.findOne({ stripeSessionId: sessionId }).populate("items.menuItem");
 }

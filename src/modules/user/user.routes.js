@@ -147,17 +147,12 @@ router.post('/logout',validationMiddleware(loginUserSchema),userController.logou
 
 /**
  * @swagger
- * /user/me/{token}:
+ * /user/me:
  *   get:
  *     tags: [User]
- *     summary: Get current user by token
- *     description: Returns user details from refresh token
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema: { type: string }
- *         description: Refresh token
+ *     summary: Get current authenticated user details
+ *     description: Returns user details from JWT token in Authorization header
+ *     security: [{ bearerAuth: [] }]
  *     responses:
  *       200: 
  *         description: User retrieved successfully
@@ -167,7 +162,7 @@ router.post('/logout',validationMiddleware(loginUserSchema),userController.logou
  *               type: object
  *               properties:
  *                 user: { $ref: '#/components/schemas/User' }
- *       400: { description: Token is required }
+ *       401: { description: Unauthorized - Token missing or invalid }
  *       404: { description: User not found }
  */
 router.get('/me',errorHandler(auth()),userController.getCurrentUser);

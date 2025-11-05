@@ -1,17 +1,30 @@
 import {
   createOrderFromCart,
   getUserOrders,
+  getAllOrders,
   getOrderById,
   confirmOrder,
-  getOrderBySessionId,
 } from "./order.service.js";
 
 export const checkout = async (req, res) => {
   try {
-    const { userId, paymentMethod = "cash" } = req.body;
+    const userId = req.authUser._id;
+    const { 
+      paymentMethod = "cash",
+      customerFullName,
+      customerEmail,
+      deliveryAddress,
+      phoneNumber
+    } = req.body;
 
-    // Create order from cart
-    const result = await createOrderFromCart(userId, { paymentMethod });
+    // Create order from cart with delivery details
+    const result = await createOrderFromCart(userId, { 
+      paymentMethod,
+      customerFullName,
+      customerEmail,
+      deliveryAddress,
+      phoneNumber
+    });
 
     console.log('Checkout result:', {
       hasOrder: !!result.order,
@@ -63,12 +76,24 @@ export const confirm = async (req, res) => {
 
 export const listUserOrders = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.authUser._id;
     const orders = await getUserOrders(userId);
     res.json({ orders });
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch orders",
+      error: error.message
+    });
+  }
+};
+
+export const listAllOrders = async (req, res) => {
+  try {
+    const orders = await getAllOrders();
+    res.json({ orders });
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch all orders",
       error: error.message
     });
   }
@@ -80,39 +105,6 @@ export const getOrder = async (req, res) => {
     const order = await getOrderById(orderId);
     if (!order) return res.status(404).json({ message: "Order not found" });
     res.json({ order });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch order",
-      error: error.message
-    });
-  }
-};
-
-export const checkOrderStatusWithSessionId = async (req, res) => {
-  try {
-    const { sessionId } = req.query;
-
-    if (!sessionId) {
-      return res.status(400).json({ message: "Session ID is required" });
-    }
-
-    const order = await getOrderBySessionId(sessionId);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found for this session" });
-    }
-
-    if (order.status !== "confirmed") {
-      return res.status(200).json({
-        message: "Payment is still pending. Please complete the payment.",
-        order
-      });
-    }
-
-    res.json({
-      message: "Payment successful! Your order is confirmed.",
-      order
-    });
   } catch (error) {
     res.status(500).json({
       message: "Failed to fetch order",

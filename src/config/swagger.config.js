@@ -130,8 +130,11 @@ const options = {
                             enum: ['cash', 'card', 'online'],
                             description: 'Payment method: cash (pay on delivery), card (Stripe payment), online (other online methods)'
                         },
-                        stripeSessionId: { type: 'string', nullable: true, description: 'Stripe checkout session ID for tracking card payments and webhook confirmation' },
-                        createdAt: { type: 'string', format: 'date-time', description: 'Order creation timestamp' },
+                        customerFullName: { type: 'string', description: 'Full name of the customer for delivery' },
+                        customerEmail: { type: 'string', format: 'email', description: 'Email address of the customer for order notifications' },
+                        deliveryAddress: { type: 'string', description: 'Complete delivery address including street, apartment, city, and postal code' },
+                        phoneNumber: { type: 'string', description: 'Contact phone number for delivery coordination' },
+                        createdAt: { type: 'string', format: 'date-time', description: 'Order creation timestamp. Note: Orders auto-expire after 60 seconds via TTL index for testing/development purposes.' },
                         updatedAt: { type: 'string', format: 'date-time', description: 'Last order update timestamp' },
                     },
                 },

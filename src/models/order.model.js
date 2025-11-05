@@ -52,9 +52,28 @@ const orderSchema = new mongoose.Schema(
       enum: ["cash", "card", "online"],
       default: "cash",
     },
-    stripeSessionId: {
+    // Customer Information
+    customerFullName: {
       type: String,
-      default: null,
+      required: true,
+      trim: true,
+    },
+    customerEmail: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    // Delivery Details
+    deliveryAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
     },
   },
   { timestamps: true }
