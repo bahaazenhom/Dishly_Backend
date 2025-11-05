@@ -31,25 +31,38 @@ export class OfferService {
     }
     async updateOffer(offerId, updateData) {
         try {
-            const offer =  await Offer.findById(offerId);
+            const offer = await Offer.findByIdAndUpdate(offerId, updateData, {
+                new: true,
+            })
+                .populate("menuItems");
+
             if (!offer) {
-                throw new ErrorClass('Offer not found', 404, { offerId }, 'OfferService.updateOffer');
+                throw new ErrorClass(
+                    "Offer not found",
+                    404,
+                    { offerId },
+                    "OfferService.updateOffer"
+                );
             }
-            Object.assign(offer, updateData);
-            await offer.save();
+
             return offer;
         } catch (error) {
-            throw new ErrorClass('Failed to update offer', 500, error.message, 'OfferService.updateOffer');
+            throw new ErrorClass(
+                "Failed to update offer",
+                500,
+                error.message,
+                "OfferService.updateOffer"
+            );
         }
-
     }
+
     async deleteOffer(offerId) {
         try {
             const offer = await Offer.findByIdAndDelete(offerId);
             return offer;
-        } catch (error) {   
+        } catch (error) {
             throw new ErrorClass('Failed to delete offer', 500, error.message, 'OfferService.deleteOffer');
-        }   
+        }
     }
 
     async getActiveOffersForMenuItem(menuItemId) {
@@ -58,7 +71,7 @@ export class OfferService {
                 menuItems: menuItemId,
                 isActive: true
             }).sort({ discountPercent: -1 }).lean(); // Sort by highest discount first
-            
+
             return offers.length > 0 ? offers[0] : null; // Return best offer
         } catch (error) {
             throw new ErrorClass('Failed to get active offers for menu item', 500, error.message, 'OfferService.getActiveOffersForMenuItem');
