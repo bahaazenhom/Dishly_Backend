@@ -75,10 +75,6 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
     });
   }
 
-  // Clear cart after order creation
-  cart.items = [];
-  await cart.save();
-
   console.log('Returning from createOrderFromCart:', {
     hasOrder: !!order,
     hasStripeSession: !!stripeSession
