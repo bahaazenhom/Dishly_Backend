@@ -46,7 +46,7 @@ export class MenuItemController {
                 menuItemService.getAllMenuItems(),
                 offerService.getAllOffers(),
             ]);
-            const itemsWithOffers = items.map(item => {
+            const itemsWithOffers = items.filter(item => {
                 if(item.isAvailable===true){
                     const offer = offers.find(offer => offer.menuItems.some(menuItemId => menuItemId.toString() === item._id.toString()));
                     return {
