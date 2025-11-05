@@ -31,6 +31,15 @@ export class MenuItemController {
             res.status(error.statusCode || 500).json({ message: error.message });
         }
     }
+    async getAllMenuItems(req, res) {
+        try {
+            const items = await menuItemService.getAllMenuItems();
+            res.status(200).json(items);
+        }
+        catch (error) {
+            res.status(error.statusCode || 500).json({ message: error.message });
+        }
+    }
     async getAllMenuItemsAndOfferMenuItem(req, res) {
         try {
             const [items,offers] = await Promise.all([
@@ -38,15 +47,17 @@ export class MenuItemController {
                 offerService.getAllOffers(),
             ]);
             const itemsWithOffers = items.map(item => {
-                const offer = offers.find(offer => offer.menuItems.some(menuItemId => menuItemId.toString() === item._id.toString()));
-                return {
-                    ...item,
-                    offer: offer ? {
-                        title: offer.title,
-                        discountPercent: `${offer.discountPercent}%`,
-                        priceAfterDiscount: item.price * (1 - offer.discountPercent / 100),
-                    } : null,
-                };
+                if(item.isAvailable===true){
+                    const offer = offers.find(offer => offer.menuItems.some(menuItemId => menuItemId.toString() === item._id.toString()));
+                    return {
+                        ...item,
+                        offer: offer ? {
+                            title: offer.title,
+                            discountPercent: `${offer.discountPercent}%`,
+                            priceAfterDiscount: item.price * (1 - offer.discountPercent / 100),
+                        } : null,
+                    };
+                }
             });
 
             res.status(200).json({ items: itemsWithOffers });

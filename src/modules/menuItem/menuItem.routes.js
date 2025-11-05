@@ -38,6 +38,7 @@ router.post('/',errorHandler(auth()),errorHandler(authorizationMiddleware(system
  */
 router.get('/',menuItemController.getAllMenuItemsAndOfferMenuItem);
 
+router.get('/all',menuItemController.getAllMenuItems);
 /**
  * @swagger
  * /menu-items/category/{category}:
