@@ -38,15 +38,14 @@ export class UserController {
             
             // Update user with refresh token
             await userService.updateUser(userId,{refreshToken});
-            
+            console.log(process.env.NODE_ENV);
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production', // Only use secure in production
                 sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
                 path: '/', // Make cookie available for all paths
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
-            });
+             });
             
             res.json({ message: "Email confirmed", accessToken });
         }
@@ -96,8 +95,7 @@ export class UserController {
                 secure: process.env.NODE_ENV === 'production', // Only use secure in production
                 sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
                 path: '/', // Make cookie available for all paths
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days 
             });
             res.status(200).json({message:'Login successful',userToken:accessToken});
         }
@@ -126,8 +124,7 @@ export class UserController {
                 secure: process.env.NODE_ENV === 'production', // Only use secure in production
                 sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
                 path: '/', // Make cookie available for all paths
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days s
             });
             res.status(200).json({ accessToken: newAccessToken });
         }
