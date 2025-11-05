@@ -41,10 +41,11 @@ export class UserController {
             
             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true,
-                sameSite: "strict",
-                path: "/user/login",
-                maxAge: 7 * 24 * 60 * 60 * 1000,
+                secure: process.env.NODE_ENV === 'production', // Only use secure in production
+                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+                path: '/', // Make cookie available for all paths
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
             });
             
             res.json({ message: "Email confirmed", accessToken });
@@ -90,13 +91,14 @@ export class UserController {
             const accessToken = generateAccessToken({userId:user._id});
             const refreshToken = generateRefreshToken({userId:user._id});
             // set cookie
-            res.cookie("refreshToken", refreshToken, {
+             res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true, // use HTTPS in production
-                sameSite: "strict",
-                path: "/user/refresh", // restrict path
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            }); 
+                secure: process.env.NODE_ENV === 'production', // Only use secure in production
+                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+                path: '/', // Make cookie available for all paths
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
+            });
             res.status(200).json({message:'Login successful',userToken:accessToken});
         }
         catch(error){
@@ -119,13 +121,14 @@ export class UserController {
             // update refresh token in DB
             await userService.updateUser(user._id,{refreshToken:newRefreshToken});
             // set cookie
-            res.cookie("refreshToken", newRefreshToken, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                secure: true, // use HTTPS in production
-                sameSite: "strict",
-                path: "/user/refresh", // restrict path
-                maxAge: 7 * 24 * 60 * 60 * 1000,
-            }); 
+                secure: process.env.NODE_ENV === 'production', // Only use secure in production
+                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+                path: '/', // Make cookie available for all paths
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                domain: process.env.NODE_ENV === 'production' ? 'https://fullsnack.obl.ee' : undefined // Set this to your production domain
+            });
             res.status(200).json({ accessToken: newAccessToken });
         }
         catch(error){
@@ -139,7 +142,7 @@ export class UserController {
             if (!token) return res.sendStatus(204);
             const payload = verifyRefreshToken(token);
             await userService.updateUser(payload.userId,{refreshToken:null});
-            res.clearCookie("refreshToken",{path:"/user/refresh"});
+            res.clearCookie("refreshToken",{path:"/"});
             res.status(200).json({message:'Logout successful'});
         }
         catch(error){
