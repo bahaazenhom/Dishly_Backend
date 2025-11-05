@@ -52,5 +52,18 @@ export class OfferService {
         }   
     }
 
+    async getActiveOffersForMenuItem(menuItemId) {
+        try {
+            const offers = await Offer.find({
+                menuItems: menuItemId,
+                isActive: true
+            }).sort({ discountPercent: -1 }).lean(); // Sort by highest discount first
+            
+            return offers.length > 0 ? offers[0] : null; // Return best offer
+        } catch (error) {
+            throw new ErrorClass('Failed to get active offers for menu item', 500, error.message, 'OfferService.getActiveOffersForMenuItem');
+        }
+    }
+
 
 }

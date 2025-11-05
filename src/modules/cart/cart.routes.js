@@ -25,7 +25,8 @@ const router = express.Router();
  * /cart/{userId}:
  *   get:
  *     tags: [Cart]
- *     summary: Get user cart (Customer only)
+ *     summary: Get user cart with offer prices (Customer only)
+ *     description: Returns cart with automatic offer discounts applied to items. Each item shows original price, discounted price, and discount percentage.
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
@@ -34,7 +35,14 @@ const router = express.Router();
  *         schema: { type: string }
  *         description: User ID
  *     responses:
- *       200: { description: Cart retrieved successfully }
+ *       200: 
+ *         description: Cart retrieved successfully with offer prices
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cart: { $ref: '#/components/schemas/Cart' }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       404: { description: Cart not found }
@@ -52,7 +60,8 @@ router.get(
  * /cart/items:
  *   post:
  *     tags: [Cart]
- *     summary: Add item to cart (Customer only)
+ *     summary: Add item to cart with automatic offer application (Customer only)
+ *     description: Adds item to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -66,9 +75,18 @@ router.get(
  *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
  *               quantity: { type: number, minimum: 1, example: 2 }
  *     responses:
- *       200: { description: Item added to cart }
+ *       201: 
+ *         description: Item added to cart with offer applied (if available)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cart: { $ref: '#/components/schemas/Cart' }
+ *       400: { description: Menu item not available }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
+ *       404: { description: User or menu item not found }
  */
 router.post(
   "/items",
@@ -83,7 +101,8 @@ router.post(
  * /cart/items:
  *   patch:
  *     tags: [Cart]
- *     summary: Update cart item quantity (Customer only)
+ *     summary: Update cart item quantity with offer refresh (Customer only)
+ *     description: Updates item quantity and refreshes prices/offers. Automatically reapplies current active offers to ensure up-to-date pricing.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -97,7 +116,14 @@ router.post(
  *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
  *               quantity: { type: number, minimum: 1, example: 3 }
  *     responses:
- *       200: { description: Cart item updated }
+ *       200: 
+ *         description: Cart item updated with current prices and offers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 cart: { $ref: '#/components/schemas/Cart' }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       404: { description: Item not found in cart }

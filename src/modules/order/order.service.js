@@ -1,5 +1,6 @@
 import Order from "../../models/order.model.js";
 import Cart from "../../models/cart.model.js";
+
 import paymentService from "../payment/payment.services.js";
 
 export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {}) {
@@ -13,13 +14,26 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
   for (const cartItem of cart.items) {
     const item = cartItem.menuItem;
     if (!item) continue;
-    items.push({ menuItem: item._id, quantity: cartItem.quantity });
-    totalAmount += item.price * cartItem.quantity;
+    
+    // Use prices already calculated in cart (refreshed on each update)
+    const finalPrice = cartItem.priceAtAddition || item.price;
+    const originalPrice = cartItem.originalPrice || item.price;
+    const appliedDiscount = cartItem.discountApplied || 0;
+    
+    items.push({ 
+      menuItem: item._id, 
+      quantity: cartItem.quantity,
+      priceAtPurchase: finalPrice,
+      originalPrice: originalPrice,
+      discountApplied: appliedDiscount
+    });
+    
+    totalAmount += finalPrice * cartItem.quantity;
 
-    // Prepare products for Stripe
+    // Prepare products for Stripe with discounted price
     products.push({
-      name: item.name,
-      price: item.price,
+      name: appliedDiscount > 0 ? `${item.name} (${appliedDiscount}% OFF)` : item.name,
+      price: finalPrice,
       quantity: cartItem.quantity
     });
   }

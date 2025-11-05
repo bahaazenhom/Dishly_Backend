@@ -24,8 +24,8 @@ const router = express.Router();
  * /orders/checkout:
  *   post:
  *     tags: [Orders]
- *     summary: Checkout and create order from cart (Customer only)
- *     description: Creates an order from user's cart. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL.
+ *     summary: Checkout and create order from cart with offer prices (Customer only)
+ *     description: Creates an order from user's cart using prices already calculated with active offers. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -39,7 +39,7 @@ const router = express.Router();
  *               paymentMethod: { type: string, enum: [cash, card, online], example: "cash" }
  *     responses:
  *       201: 
- *         description: Order created successfully
+ *         description: Order created successfully with offer discounts applied
  *         content:
  *           application/json:
  *             schema:
@@ -47,7 +47,7 @@ const router = express.Router();
  *               properties:
  *                 message: { type: string }
  *                 order: { $ref: '#/components/schemas/Order' }
- *                 checkoutUrl: { type: string, description: "Stripe checkout URL (only for card payment)" }
+ *                 checkoutUrl: { type: string, description: "Stripe checkout URL with discounted prices (only for card payment)" }
  *                 sessionId: { type: string, description: "Stripe session ID (only for card payment)" }
  *       400: { description: Cart is empty or invalid }
  *       401: { description: Unauthorized }
@@ -107,7 +107,8 @@ router.post(
  * /orders/user/{userId}:
  *   get:
  *     tags: [Orders]
- *     summary: Get all orders for a user (Customer only)
+ *     summary: Get all orders for a user with pricing details (Customer only)
+ *     description: Returns all orders with original prices, discounted prices, and discount percentages applied at time of purchase.
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
@@ -116,7 +117,17 @@ router.post(
  *         schema: { type: string }
  *         description: User ID
  *     responses:
- *       200: { description: List of user orders }
+ *       200: 
+ *         description: List of user orders with price breakdown
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 orders:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  */
@@ -166,7 +177,8 @@ router.get(
  * /orders/{orderId}:
  *   get:
  *     tags: [Orders]
- *     summary: Get order details by ID (Customer only)
+ *     summary: Get order details by ID with pricing breakdown (Customer only)
+ *     description: Returns detailed order information including original prices, discounted prices, and discount percentages for each item.
  *     security: [{ bearerAuth: [] }]
  *     parameters:
  *       - in: path
@@ -175,7 +187,14 @@ router.get(
  *         schema: { type: string }
  *         description: Order ID
  *     responses:
- *       200: { description: Order details retrieved }
+ *       200: 
+ *         description: Order details retrieved with price breakdown
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 order: { $ref: '#/components/schemas/Order' }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       404: { description: Order not found }

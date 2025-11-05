@@ -13,6 +13,7 @@ const userController = new UserController();
  *   post:
  *     tags: [User]
  *     summary: Register a new user
+ *     description: Creates a new user account. Rate limited to 5 requests per 10 minutes per IP address.
  *     requestBody:
  *       required: true
  *       content:
@@ -38,6 +39,7 @@ const userController = new UserController();
  *                 userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *       400: { description: Validation error }
  *       409: { description: Email already in use }
+ *       429: { description: Too many registration attempts, please try again later }
  */
 router.post('/register',authLimiter,validationMiddleware(createUserSchema),userController.registerUser);
 
@@ -75,7 +77,7 @@ router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),use
  *   post:
  *     tags: [User]
  *     summary: User login
- *     description: Authenticate user and return access token. Sets refresh token in httpOnly cookie.
+ *     description: Authenticate user and return access token. Sets refresh token in httpOnly cookie. Rate limited to 5 requests per 10 minutes per IP address to prevent brute force attacks.
  *     requestBody:
  *       required: true
  *       content:
@@ -97,6 +99,7 @@ router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),use
  *                 message: { type: string, example: "Login successful" }
  *                 userToken: { type: string, description: "Access token for authentication" }
  *       401: { description: Invalid credentials or email not confirmed }
+ *       429: { description: Too many login attempts, please try again later }
  */
 router.post('/login',authLimiter,validationMiddleware(loginUserSchema),userController.loginUser);
 

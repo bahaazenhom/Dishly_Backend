@@ -19,6 +19,22 @@ const orderSchema = new mongoose.Schema(
           min: 1,
           required: true,
         },
+        priceAtPurchase: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        originalPrice: {
+          type: Number,
+          required: true,
+          min: 0,
+        },
+        discountApplied: {
+          type: Number,
+          default: 0,
+          min: 0,
+          max: 100,
+        },
       },
     ],
     totalAmount: {
