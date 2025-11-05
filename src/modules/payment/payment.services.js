@@ -13,13 +13,13 @@ class PaymentService {
       quantity: product.quantity,
     }));
 
-    const baseUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const baseUrl = process.env.CLIENT_URL || "http://localhost:5173";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
-      success_url: `${baseUrl}/order-success?orderId=${orderId}`,
+      success_url: `${baseUrl}/order-success/${orderId}`,
       cancel_url: `${baseUrl}/order-cancel`,
       metadata: {
         orderId: orderId, // Store orderId to identify which order to confirm
