@@ -15,16 +15,16 @@ import paymentController from "./modules/payment/payment.controller.js";
 
 const app = express();
 
-// CORS Configuration - Allow all origins
+// CORS Configuration for development and production
 app.use(cors({
-  origin : "localhost:1573",
-  credentials: true, // Allow cookies
-}))
-app.use(cors({
-  origin: '*', // Allow all origins
-  credentials: true, // Allow cookies
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://fullsnack.up.railway.app']  // Replace with your production domain
+    : ['http://localhost:1573', 'http://127.0.0.1:1573'], // Development domains
+  credentials: true, // Allow credentials (cookies, authorization headers)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['set-cookie'], // Important for accessing cookies
+  maxAge: 86400 // Cache preflight requests for 24 hours
 }));
 
 
