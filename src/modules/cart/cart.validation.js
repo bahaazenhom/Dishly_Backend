@@ -4,9 +4,17 @@ const objectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
 
 export const addItemSchema = {
   body: Joi.object({
-    menuItemId: objectId.required(),
+    // Support single item
+    menuItemId: objectId,
     quantity: Joi.number().integer().min(1).default(1),
-  }),
+    // Support multiple items
+    items: Joi.array().items(
+      Joi.object({
+        menuItemId: objectId.required(),
+        quantity: Joi.number().integer().min(1).default(1),
+      })
+    ).min(1),
+  }).or('menuItemId', 'items'), // At least one must be provided
 };
 
 export const updateItemSchema = {

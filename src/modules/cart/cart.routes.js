@@ -51,29 +51,51 @@ router.get(
  * /cart/items:
  *   post:
  *     tags: [Cart]
- *     summary: Add item to authenticated user's cart with automatic offer application (Customer only)
- *     description: Adds item to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price. Uses authenticated user's ID from JWT token.
+ *     summary: Add item(s) to authenticated user's cart with automatic offer application (Customer only)
+ *     description: Adds single or multiple items to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price for each item. Supports both single item and batch addition. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [menuItemId, quantity]
- *             properties:
- *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
- *               quantity: { type: number, minimum: 1, example: 2 }
+ *             oneOf:
+ *               - type: object
+ *                 title: Single Item
+ *                 required: [menuItemId]
+ *                 properties:
+ *                   menuItemId: { type: string, example: "507f1f77bcf86cd799439012", description: "Menu item ID to add" }
+ *                   quantity: { type: number, minimum: 1, default: 1, example: 2, description: "Quantity to add" }
+ *               - type: object
+ *                 title: Multiple Items
+ *                 required: [items]
+ *                 properties:
+ *                   items: 
+ *                     type: array
+ *                     minItems: 1
+ *                     description: "Array of items to add to cart"
+ *                     items:
+ *                       type: object
+ *                       required: [menuItemId]
+ *                       properties:
+ *                         menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
+ *                         quantity: { type: number, minimum: 1, default: 1, example: 2 }
+ *                     example:
+ *                       - menuItemId: "507f1f77bcf86cd799439012"
+ *                         quantity: 2
+ *                       - menuItemId: "507f1f77bcf86cd799439013"
+ *                         quantity: 1
  *     responses:
  *       201: 
- *         description: Item added to cart with offer applied (if available)
+ *         description: Item(s) added to cart with offers applied (if available)
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 cart: { $ref: '#/components/schemas/Cart' }
- *       400: { description: Menu item not available }
+ *                 message: { type: string, example: "2 items added to cart" }
+ *       400: { description: Menu item not available or validation error }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       404: { description: Menu item not found }
