@@ -14,26 +14,18 @@ import {
   addItemSchema,
   updateItemSchema,
   removeItemSchema,
-  getCartSchema,
-  clearCartSchema,
 } from "./cart.validation.js";
 
 const router = express.Router();
 
 /**
  * @swagger
- * /cart/{userId}:
+ * /cart:
  *   get:
  *     tags: [Cart]
- *     summary: Get user cart with offer prices (Customer only)
- *     description: Returns cart with automatic offer discounts applied to items. Each item shows original price, discounted price, and discount percentage.
+ *     summary: Get authenticated user's cart with offer prices (Customer only)
+ *     description: Returns cart with automatic offer discounts applied to items. Each item shows original price, discounted price, and discount percentage. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema: { type: string }
- *         description: User ID
  *     responses:
  *       200: 
  *         description: Cart retrieved successfully with offer prices
@@ -48,8 +40,7 @@ const router = express.Router();
  *       404: { description: Cart not found }
  */
 router.get(
-  "/:userId",
-  validationMiddleware(getCartSchema),
+  "/",
   auth(),
   authorizationMiddleware(["customer"]),
   errorHandler(getCart)
@@ -60,8 +51,8 @@ router.get(
  * /cart/items:
  *   post:
  *     tags: [Cart]
- *     summary: Add item to cart with automatic offer application (Customer only)
- *     description: Adds item to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price.
+ *     summary: Add item to authenticated user's cart with automatic offer application (Customer only)
+ *     description: Adds item to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -69,9 +60,8 @@ router.get(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, menuItemId, quantity]
+ *             required: [menuItemId, quantity]
  *             properties:
- *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
  *               quantity: { type: number, minimum: 1, example: 2 }
  *     responses:
@@ -86,7 +76,7 @@ router.get(
  *       400: { description: Menu item not available }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
- *       404: { description: User or menu item not found }
+ *       404: { description: Menu item not found }
  */
 router.post(
   "/items",
@@ -102,7 +92,7 @@ router.post(
  *   patch:
  *     tags: [Cart]
  *     summary: Update cart item quantity with offer refresh (Customer only)
- *     description: Updates item quantity and refreshes prices/offers. Automatically reapplies current active offers to ensure up-to-date pricing.
+ *     description: Updates item quantity and refreshes prices/offers. Automatically reapplies current active offers to ensure up-to-date pricing. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -110,9 +100,8 @@ router.post(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, menuItemId, quantity]
+ *             required: [menuItemId, quantity]
  *             properties:
- *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
  *               quantity: { type: number, minimum: 1, example: 3 }
  *     responses:
@@ -141,7 +130,8 @@ router.patch(
  * /cart/items:
  *   delete:
  *     tags: [Cart]
- *     summary: Remove item from cart (Customer only)
+ *     summary: Remove item from authenticated user's cart (Customer only)
+ *     description: Removes item from cart. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -149,9 +139,8 @@ router.patch(
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, menuItemId]
+ *             required: [menuItemId]
  *             properties:
- *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
  *     responses:
  *       200: { description: Item removed from cart }
@@ -169,25 +158,19 @@ router.delete(
 
 /**
  * @swagger
- * /cart/{userId}:
+ * /cart:
  *   delete:
  *     tags: [Cart]
- *     summary: Clear user cart (Customer only)
+ *     summary: Clear authenticated user's cart (Customer only)
+ *     description: Clears all items from cart. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema: { type: string }
- *         description: User ID
  *     responses:
  *       200: { description: Cart cleared successfully }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  */
 router.delete(
-  "/:userId",
-  validationMiddleware(clearCartSchema),
+  "/",
   auth(),
   authorizationMiddleware(["customer"]),
   errorHandler(clearUserCart)

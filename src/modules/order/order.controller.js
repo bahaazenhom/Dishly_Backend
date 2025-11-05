@@ -8,7 +8,8 @@ import {
 
 export const checkout = async (req, res) => {
   try {
-    const { userId, paymentMethod = "cash" } = req.body;
+    const userId = req.authUser._id;
+    const { paymentMethod = "cash" } = req.body;
 
     // Create order from cart
     const result = await createOrderFromCart(userId, { paymentMethod });
@@ -63,7 +64,7 @@ export const confirm = async (req, res) => {
 
 export const listUserOrders = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const userId = req.authUser._id;
     const orders = await getUserOrders(userId);
     res.json({ orders });
   } catch (error) {

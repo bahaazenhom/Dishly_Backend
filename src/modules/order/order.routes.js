@@ -11,7 +11,6 @@ import {
 import {
   checkoutSchema,
   confirmSchema,
-  listOrdersSchema,
   getOrderSchema,
 } from "./order.validation.js";
 import { auth } from "../../middlewares/authentication.middleware.js";
@@ -24,8 +23,8 @@ const router = express.Router();
  * /orders/checkout:
  *   post:
  *     tags: [Orders]
- *     summary: Checkout and create order from cart with offer prices (Customer only)
- *     description: Creates an order from user's cart using prices already calculated with active offers. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices.
+ *     summary: Checkout and create order from authenticated user's cart with offer prices (Customer only)
+ *     description: Creates an order from user's cart using prices already calculated with active offers. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -33,9 +32,8 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [userId, paymentMethod]
+ *             required: [paymentMethod]
  *             properties:
- *               userId: { type: string, example: "507f1f77bcf86cd799439011" }
  *               paymentMethod: { type: string, enum: [cash, card, online], example: "cash" }
  *     responses:
  *       201: 
@@ -104,18 +102,12 @@ router.post(
 
 /**
  * @swagger
- * /orders/user/{userId}:
+ * /orders:
  *   get:
  *     tags: [Orders]
- *     summary: Get all orders for a user with pricing details (Customer only)
- *     description: Returns all orders with original prices, discounted prices, and discount percentages applied at time of purchase.
+ *     summary: Get all orders for authenticated user with pricing details (Customer only)
+ *     description: Returns all orders with original prices, discounted prices, and discount percentages applied at time of purchase. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
- *     parameters:
- *       - in: path
- *         name: userId
- *         required: true
- *         schema: { type: string }
- *         description: User ID
  *     responses:
  *       200: 
  *         description: List of user orders with price breakdown
@@ -132,8 +124,7 @@ router.post(
  *       403: { description: Customer access required }
  */
 router.get(
-  "/user/:userId",
-  validationMiddleware(listOrdersSchema),
+  "/",
   auth(),
   authorizationMiddleware(["customer"]),
   errorHandler(listUserOrders)
