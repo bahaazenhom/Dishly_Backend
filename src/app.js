@@ -17,6 +17,10 @@ const app = express();
 
 // CORS Configuration - Allow all origins
 app.use(cors({
+  origin : "localhost:1573",
+  credentials: true, // Allow cookies
+}))
+app.use(cors({
   origin: '*', // Allow all origins
   credentials: true, // Allow cookies
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
