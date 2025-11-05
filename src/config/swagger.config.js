@@ -15,6 +15,10 @@ const options = {
                 description: 'Production server',
             },
             {
+                url: 'https://full-snack.obl.ee',
+                description: 'Testing Server - Bahaa',
+            },
+            {
                 url: 'http://localhost:5000',
                 description: 'Local development server',
             },
