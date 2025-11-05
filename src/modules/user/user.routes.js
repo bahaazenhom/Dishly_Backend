@@ -2,7 +2,7 @@ import {Router} from "express";
 import {UserController} from "./user.controller.js";
 import { errorHandler } from "../../middlewares/error.middleware.js";
 import {validationMiddleware} from "../../middlewares/validation.middleware.js";
-import { confirmEmailSchema, createUserSchema, loginUserSchema, refreshTokenSchema } from "./user.validation.js";
+import { confirmEmailSchema, createUserSchema, loginUserSchema } from "./user.validation.js";
 import { authLimiter } from "../../middlewares/rateLimiter.middleware.js";
 import { auth } from "../../middlewares/authentication.middleware.js";
 const router = Router();
@@ -123,7 +123,7 @@ router.post('/login',authLimiter,validationMiddleware(loginUserSchema),userContr
  *       401: { description: Refresh token missing }
  *       403: { description: Invalid refresh token }
  */
-router.post('/refresh',validationMiddleware(refreshTokenSchema),userController.refreshToken);
+router.post('/refresh',userController.refreshToken);
 
 /**
  * @swagger
