@@ -72,6 +72,7 @@ export class UserController {
     async loginUser(req, res, next) {
         try{
             const {email,password} = req.body;
+            
             if(!email || !password){
                 return next(new ErrorClass('Email and password are required',400,'Validation Error'));
             }

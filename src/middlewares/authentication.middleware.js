@@ -30,7 +30,7 @@ export const auth = () => {
       );
     }
     // find user by userId
-    const isUserExists = await User.findById(data?.userId);
+    const isUserExists = await User.findById(data?.userId).select("-password");
     if (!isUserExists) {
       return next(new ErrorClass("User not found", 404, "User not found"));
     }
