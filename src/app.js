@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import cookieParser from "cookie-parser"; 
 import userRouter from "./modules/user/user.routes.js";
 import menuItemRouter from "./modules/menuItem/menuItem.routes.js";
@@ -21,6 +22,28 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
+
+//Security: Helmet Middleware 
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], // allow internal + inline styles
+      scriptSrc: ["'self'"],                   // disallow 3rd-party scripts
+      imgSrc: ["'self'", "data:"],             // allow self + base64 images
+      objectSrc: ["'none'"],                   // disallow plugins/flash
+    }
+  },
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true
+  },
+  referrerPolicy: { policy: "no-referrer-when-downgrade" },
+  crossOriginResourcePolicy: { policy: "same-origin" }
+}));
+
 
 // Stripe webhook route MUST come before express.json() to receive raw body
 app.post('/payment/webhook', express.raw({ type: 'application/json' }), paymentController.handleWebhook);
