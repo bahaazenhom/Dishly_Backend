@@ -15,7 +15,6 @@ export class MenuItemController {
                 folder: "fullSnack/menuItems",
                 use_filename: true,
             });
-            console.log("-->",uploadResponse);
             
             const menuItemData = {
                 name,

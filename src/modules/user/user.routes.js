@@ -3,6 +3,7 @@ import {UserController} from "./user.controller.js";
 import { errorHandler } from "../../middlewares/error.middleware.js";
 import {validationMiddleware} from "../../middlewares/validation.middleware.js";
 import { confirmEmailSchema, createUserSchema, getUserByIdSchema, loginUserSchema, refreshTokenSchema } from "./user.validation.js";
+import { authLimiter } from "../../middlewares/rateLimiter.middleware.js";
 const router = Router();
 const userController = new UserController();
 
@@ -38,7 +39,7 @@ const userController = new UserController();
  *       400: { description: Validation error }
  *       409: { description: Email already in use }
  */
-router.post('/register',validationMiddleware(createUserSchema),userController.registerUser);
+router.post('/register',authLimiter,validationMiddleware(createUserSchema),userController.registerUser);
 
 /**
  * @swagger
@@ -97,7 +98,7 @@ router.get('/confirm-email/:userId',validationMiddleware(confirmEmailSchema),use
  *                 userToken: { type: string, description: "Access token for authentication" }
  *       401: { description: Invalid credentials or email not confirmed }
  */
-router.post('/login',validationMiddleware(loginUserSchema),userController.loginUser);
+router.post('/login',authLimiter,validationMiddleware(loginUserSchema),userController.loginUser);
 
 /**
  * @swagger
