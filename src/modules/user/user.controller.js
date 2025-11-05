@@ -148,12 +148,7 @@ export class UserController {
 
     async getCurrentUser(req, res, next) {
         try{
-            const { token } = req.params;
-            if(!token){
-                return next(new ErrorClass('Token is required',400,'Validation Error'));
-            }
-            const payload = verifyRefreshToken(token);
-            const user = await userService.getUserById(payload.userId);
+            const user= req.authUser;
             if(!user){
                 return next(new ErrorClass('User not found',404,'Not Found Error'));
             }
