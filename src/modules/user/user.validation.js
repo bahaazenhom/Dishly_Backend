@@ -27,11 +27,7 @@ export const logoutUserSchema = {
         refreshToken: Joi.string().required()
     })
 }
-export const getUserByIdSchema = {
-    params: Joi.object({
-        userId: Joi.string().required()
-    })
-}
+ 
 
 export const loginUserSchema = {
     body: Joi.object({

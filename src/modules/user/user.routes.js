@@ -2,8 +2,9 @@ import {Router} from "express";
 import {UserController} from "./user.controller.js";
 import { errorHandler } from "../../middlewares/error.middleware.js";
 import {validationMiddleware} from "../../middlewares/validation.middleware.js";
-import { confirmEmailSchema, createUserSchema, getUserByIdSchema, loginUserSchema, refreshTokenSchema } from "./user.validation.js";
+import { confirmEmailSchema, createUserSchema, loginUserSchema, refreshTokenSchema } from "./user.validation.js";
 import { authLimiter } from "../../middlewares/rateLimiter.middleware.js";
+import { auth } from "../../middlewares/authentication.middleware.js";
 const router = Router();
 const userController = new UserController();
 
@@ -169,7 +170,7 @@ router.post('/logout',validationMiddleware(loginUserSchema),userController.logou
  *       400: { description: Token is required }
  *       404: { description: User not found }
  */
-router.get('/me/:token',validationMiddleware(getUserByIdSchema),userController.getCurrentUser);
+router.get('/me',errorHandler(auth()),userController.getCurrentUser);
 
 
 export default router;
