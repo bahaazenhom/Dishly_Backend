@@ -24,7 +24,7 @@ const router = express.Router();
  *   post:
  *     tags: [Orders]
  *     summary: Checkout and create order from authenticated user's cart with offer prices (Customer only)
- *     description: Creates an order from user's cart using prices already calculated with active offers. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices. Uses authenticated user's ID from JWT token.
+ *     description: Creates an order from user's cart using prices already calculated with active offers. Requires customer information and delivery details. For cash payment, order is confirmed immediately. For card payment, returns Stripe checkout URL with discounted prices. Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -32,9 +32,13 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [paymentMethod]
+ *             required: [paymentMethod, customerFullName, customerEmail, deliveryAddress, phoneNumber]
  *             properties:
  *               paymentMethod: { type: string, enum: [cash, card, online], example: "cash" }
+ *               customerFullName: { type: string, example: "John Doe Smith" }
+ *               customerEmail: { type: string, format: email, example: "john@example.com" }
+ *               deliveryAddress: { type: string, example: "123 Main St, Apt 4B, New York, NY 10001" }
+ *               phoneNumber: { type: string, example: "+1234567890" }
  *     responses:
  *       201: 
  *         description: Order created successfully with offer discounts applied
@@ -47,7 +51,7 @@ const router = express.Router();
  *                 order: { $ref: '#/components/schemas/Order' }
  *                 checkoutUrl: { type: string, description: "Stripe checkout URL with discounted prices (only for card payment)" }
  *                 sessionId: { type: string, description: "Stripe session ID (only for card payment)" }
- *       400: { description: Cart is empty or invalid }
+ *       400: { description: Cart is empty or validation error }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
  *       500: { description: Failed to create order }

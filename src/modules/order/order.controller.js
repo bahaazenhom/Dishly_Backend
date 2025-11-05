@@ -9,10 +9,22 @@ import {
 export const checkout = async (req, res) => {
   try {
     const userId = req.authUser._id;
-    const { paymentMethod = "cash" } = req.body;
+    const { 
+      paymentMethod = "cash",
+      customerFullName,
+      customerEmail,
+      deliveryAddress,
+      phoneNumber
+    } = req.body;
 
-    // Create order from cart
-    const result = await createOrderFromCart(userId, { paymentMethod });
+    // Create order from cart with delivery details
+    const result = await createOrderFromCart(userId, { 
+      paymentMethod,
+      customerFullName,
+      customerEmail,
+      deliveryAddress,
+      phoneNumber
+    });
 
     console.log('Checkout result:', {
       hasOrder: !!result.order,

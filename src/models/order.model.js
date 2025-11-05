@@ -56,6 +56,29 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // Customer Information
+    customerFullName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    customerEmail: {
+      type: String,
+      required: true,
+      trim: true,
+      lowercase: true,
+    },
+    // Delivery Details
+    deliveryAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phoneNumber: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

@@ -3,7 +3,20 @@ import Cart from "../../models/cart.model.js";
 
 import paymentService from "../payment/payment.services.js";
 
-export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {}) {
+export async function createOrderFromCart(userId, orderDetails = {}) {
+  const { 
+    paymentMethod = "cash",
+    customerFullName,
+    customerEmail,
+    deliveryAddress,
+    phoneNumber
+  } = orderDetails;
+
+  // Validate required delivery details
+  if (!customerFullName || !customerEmail || !deliveryAddress || !phoneNumber) {
+    throw new Error("Customer information and delivery details are required");
+  }
+
   const cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
   if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
 
@@ -44,6 +57,10 @@ export async function createOrderFromCart(userId, { paymentMethod = "cash" } = {
     totalAmount,
     status: paymentMethod === "cash" ? "confirmed" : "pending",
     paymentMethod,
+    customerFullName,
+    customerEmail,
+    deliveryAddress,
+    phoneNumber,
   });
 
   // If payment method is card, create Stripe checkout session
