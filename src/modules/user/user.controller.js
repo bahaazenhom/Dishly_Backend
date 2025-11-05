@@ -2,7 +2,30 @@ import { UserService } from "./user.service.js";
 import { ErrorClass } from "../../utils/error.util.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.util.js"; 
 import { comparePassword } from "../../utils/hash.util.js";
+
 const userService = new UserService();
+
+// Centralized cookie configuration
+const COOKIE_CONFIG = {
+    name: 'refreshToken',
+    options: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    }
+};  
+
+// Helper function to manage refresh token cookies
+const manageCookie = {
+    set: (res, token) => {
+        res.cookie(COOKIE_CONFIG.name, token, COOKIE_CONFIG.options);
+    },
+    clear: (res) => {
+        res.clearCookie('refreshToken', { path: '/' });  
+    }
+};
 export class UserController {
 
     async registerUser(req, res, next) {
@@ -38,14 +61,9 @@ export class UserController {
             
             // Update user with refresh token
             await userService.updateUser(userId,{refreshToken});
-           
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Only use secure in production
-                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-                path: '/', // Make cookie available for all paths
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-             });
+            
+            // Set cookie using helper function
+            manageCookie.set(res, refreshToken);
             
             res.json({ message: "Email confirmed", accessToken });
         }
@@ -89,60 +107,68 @@ export class UserController {
             }
             const accessToken = generateAccessToken({userId:user._id});
             const refreshToken = generateRefreshToken({userId:user._id});
-            // set cookie
-             res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Only use secure in production
-                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-                path: '/', // Make cookie available for all paths
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days 
-            });
+            
+            await userService.updateUser(user._id,{refreshToken});
+            
+            // Set cookie using helper function
+            manageCookie.set(res, refreshToken);
+            
             res.status(200).json({message:'Login successful',userToken:accessToken});
         }
         catch(error){
             next(error);
         }
     }
+    // controllers/userController.js
     async refreshToken(req, res, next) {
-        try{
-            const token = req.cookies.refreshToken;
-            if (!token) {
-                return res.sendStatus(401);
+        try {
+            const oldToken = req.cookies.refreshToken;
+
+            if (!oldToken) {
+            return res.status(401).json({ message: "No refresh token provided" });
             }
-            const payload = verifyRefreshToken(token);
+
+            // Verify old token
+            const payload = verifyRefreshToken(oldToken);
+
             const user = await userService.getUserById(payload.userId);
-            if (!user || user.refreshToken !== token) {
-                return res.sendStatus(403);
+            
+            if (!user || user.refreshToken !== oldToken) {
+            return res.status(403).json({ message: "Invalid or expired refresh token" });
             }
+
+            // Generate new tokens
             const newAccessToken = generateAccessToken({ userId: user._id });
             const newRefreshToken = generateRefreshToken({ userId: user._id });
-            // update refresh token in DB
-            await userService.updateUser(user._id,{refreshToken:newRefreshToken});
-            // set cookie
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Only use secure in production
-                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-                path: '/', // Make cookie available for all paths
-                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days s
+
+            // Rotate refresh token (replace in DB)
+            await userService.updateUser(user._id, { refreshToken: newRefreshToken });
+
+            // Set cookie using helper function
+            manageCookie.set(res, newRefreshToken);
+
+            // Return new access token
+            return res.status(200).json({
+            accessToken: newAccessToken,
             });
-            res.status(200).json({ accessToken: newAccessToken });
-        }
-        catch(error){
-            next(error);
+        } catch (error) {
+            console.error(error);
+            return res.status(403).json({ message: "Invalid or expired refresh token" });
         }
     }
 
+
     async logoutUser(req, res, next) {
-        try{
+        try {
             const token = req.cookies.refreshToken;
-            if (!token) return res.sendStatus(204);
-            const payload = verifyRefreshToken(token);
-            await userService.updateUser(payload.userId,{refreshToken:null});
-            res.clearCookie("refreshToken",{path:"/"});
-            res.status(200).json({message:'Logout successful'});
-        }
-        catch(error){
+            if (token) {
+                const payload = verifyRefreshToken(token);
+                await userService.updateUser(payload.userId, { refreshToken: null });
+            }
+            // Clear all cookies using helper function
+            manageCookie.clear(res);
+            res.status(200).json({ message: 'Logged out successfully' });
+        } catch (error) {
             next(error);
         }
     }
