@@ -5,8 +5,8 @@ import {
   checkout,
   confirm,
   listUserOrders,
+  listAllOrders,
   getOrder,
-  checkOrderStatusWithSessionId,
 } from "./order.controller.js";
 import {
   checkoutSchema,
@@ -136,35 +136,32 @@ router.get(
 
 /**
  * @swagger
- * /orders/checkOrderStatus:
+ * /orders/all:
  *   get:
  *     tags: [Orders]
- *     summary: Check order status by Stripe session ID (Public - for payment verification)
- *     description: Checks order status after Stripe redirect. Returns order details regardless of status. Called by frontend after Stripe redirects to success URL.
- *     parameters:
- *       - in: query
- *         name: sessionId
- *         required: true
- *         schema: { type: string }
- *         description: Stripe session ID from redirect URL
- *         example: "cs_test_b1NfjAGehxgGvWJPFiwlstWeX7oxcoUnBzfXFaDRyMVfJadA5RdtNes0jj"
+ *     summary: Get all orders in the system (Admin only)
+ *     description: Returns all orders from all users. Only accessible by admin users. Includes user information (fullName, email) for each order.
+ *     security: [{ bearerAuth: [] }]
  *     responses:
  *       200: 
- *         description: Order retrieved successfully
+ *         description: List of all orders
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 message: { type: string, example: "Payment successful! Your order is confirmed." }
- *                 order: { $ref: '#/components/schemas/Order' }
- *       400: { description: Session ID is required }
- *       404: { description: Order not found for this session }
- *       500: { description: Failed to fetch order }
+ *                 orders:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Order'
+ *       401: { description: Unauthorized }
+ *       403: { description: Admin access required }
  */
 router.get(
-  "/checkOrderStatus",
-  errorHandler(checkOrderStatusWithSessionId)
+  "/all",
+  auth(),
+  authorizationMiddleware(["admin"]),
+  errorHandler(listAllOrders)
 );
 
 /**

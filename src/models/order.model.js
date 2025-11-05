@@ -52,10 +52,6 @@ const orderSchema = new mongoose.Schema(
       enum: ["cash", "card", "online"],
       default: "cash",
     },
-    stripeSessionId: {
-      type: String,
-      default: null,
-    },
     // Customer Information
     customerFullName: {
       type: String,

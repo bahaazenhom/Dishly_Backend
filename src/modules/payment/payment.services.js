@@ -19,7 +19,7 @@ class PaymentService {
       payment_method_types: ["card"],
       mode: "payment",
       line_items: lineItems,
-      success_url: `${baseUrl}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${baseUrl}/order-success?orderId=${orderId}`,
       cancel_url: `${baseUrl}/order-cancel`,
       metadata: {
         orderId: orderId // Store orderId to identify which order to confirm

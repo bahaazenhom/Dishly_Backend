@@ -73,9 +73,6 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
       id: stripeSession?.id,
       url: stripeSession?.url
     });
-    // Save session ID to order for tracking
-    order.stripeSessionId = stripeSession.id;
-    await order.save();
   }
 
   // Clear cart after order creation
@@ -99,6 +96,13 @@ export async function getUserOrders(userId) {
     .sort({ createdAt: -1 });
 }
 
+export async function getAllOrders() {
+  return Order.find()
+    .populate("items.menuItem")
+    .populate("user", "fullName email")
+    .sort({ createdAt: -1 });
+}
+
 export async function getOrderById(orderId) {
   return Order.findById(orderId).populate("items.menuItem");
 }
@@ -112,8 +116,4 @@ export async function confirmOrder(orderId) {
 
   if (!order) throw new Error("Order not found");
   return order;
-}
-
-export async function getOrderBySessionId(sessionId) {
-  return Order.findOne({ stripeSessionId: sessionId }).populate("items.menuItem");
 }

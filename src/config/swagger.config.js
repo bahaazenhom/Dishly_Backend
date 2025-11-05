@@ -130,7 +130,6 @@ const options = {
                             enum: ['cash', 'card', 'online'],
                             description: 'Payment method: cash (pay on delivery), card (Stripe payment), online (other online methods)'
                         },
-                        stripeSessionId: { type: 'string', nullable: true, description: 'Stripe checkout session ID for tracking card payments and webhook confirmation' },
                         customerFullName: { type: 'string', description: 'Full name of the customer for delivery' },
                         customerEmail: { type: 'string', format: 'email', description: 'Email address of the customer for order notifications' },
                         deliveryAddress: { type: 'string', description: 'Complete delivery address including street, apartment, city, and postal code' },
