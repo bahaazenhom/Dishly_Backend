@@ -19,7 +19,7 @@ const app = express();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://fullsnack.up.railway.app']  // Replace with your production domain
-    : ['http://localhost:1573', 'http://127.0.0.1:1573'], // Development domains
+    : ['http://localhost:5173', 'http://127.0.0.1:5173'], // Development domains
   credentials: true, // Allow credentials (cookies, authorization headers)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
