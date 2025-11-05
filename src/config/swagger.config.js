@@ -11,12 +11,8 @@ const options = {
         },
         servers: [
             {
-                url: 'https://fullsnack.obl.ee',
+                url: 'https://fullsnack.up.railway.app',
                 description: 'Production server',
-            },
-            {
-                url: 'https://full-snack.obl.ee',
-                description: 'Production server - Bahaa',
             },
             {
                 url: 'http://localhost:5000',
