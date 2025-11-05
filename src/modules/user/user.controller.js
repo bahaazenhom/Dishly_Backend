@@ -43,7 +43,7 @@ export class UserController {
                 httpOnly: true,
                 secure: true,
                 sameSite: "strict",
-                path: "/user/refresh",
+                path: "/user/login",
                 maxAge: 7 * 24 * 60 * 60 * 1000,
             });
             
