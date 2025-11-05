@@ -59,7 +59,8 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add TTL stands for Time To Live index after schema definition
+orderSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 }); // 24 hours
 orderSchema.index({ user: 1, status: 1 });
 
 export default mongoose.models.Order || mongoose.model("Order", orderSchema);
