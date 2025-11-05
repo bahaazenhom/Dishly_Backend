@@ -62,6 +62,7 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
     deliveryAddress,
     phoneNumber,
   });
+  console.log("order created");
 
   // If payment method is card, create Stripe checkout session
   let stripeSession = null;
@@ -74,6 +75,7 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
       url: stripeSession?.url
     });
   }
+
 
   console.log('Returning from createOrderFromCart:', {
     hasOrder: !!order,

@@ -94,7 +94,7 @@ orderSchema.post("save", function (doc) {
       } catch (err) {
         console.error("Failed to auto-delete order:", err);
       }
-    }, 60 * 60 * 1000); // 1 minutes in milliseconds
+    }, 600 * 60 * 1000); // 10 minutes in milliseconds
   }
 });
 

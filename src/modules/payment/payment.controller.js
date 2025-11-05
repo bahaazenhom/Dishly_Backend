@@ -33,7 +33,6 @@ class PaymentController {
         const session = event.data.object;
         const orderId = session.metadata.orderId;
 
-
         if (orderId) {
           //clear user cart after successful payment
           const userId = req.authUser._id;
