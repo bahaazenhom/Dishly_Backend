@@ -1,6 +1,7 @@
 import paymentService from "./payment.services.js";
 import { ErrorClass } from "../../utils/error.util.js";
 import Order from "../../models/order.model.js";
+import Cart from "../../models/cart.model.js";
 
 
 class PaymentController {
@@ -34,6 +35,12 @@ class PaymentController {
 
 
         if (orderId) {
+          //clear user cart after successful payment
+          const userId = req.authUser._id;
+          const cart = await Cart.findOne({ user: userId });
+          cart.items = [];
+          await cart.save();
+          
           // Auto-confirm the order
           await Order.findByIdAndUpdate(
             orderId,
