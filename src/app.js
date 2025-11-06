@@ -19,7 +19,7 @@ app.set('trust proxy', 1);
 // CORS Configuration for development and production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://fullsnack.up.railway.app']  // Replace with your production domain
+    ? ['https://fullsnack.obl.ee']  // Replace with your production domain
     : ['http://localhost:5173', 'http://127.0.0.1:5173'], // Development domains
   credentials: true, // Allow credentials (cookies, authorization headers)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

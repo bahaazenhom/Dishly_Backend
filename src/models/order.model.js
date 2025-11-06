@@ -82,20 +82,5 @@ const orderSchema = new mongoose.Schema(
  //orderSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 }); // 24 hours
 orderSchema.index({ user: 1, status: 1 });
 
-orderSchema.post("save", function (doc) {
-  if (doc.status === "pending") {
-    setTimeout(async () => {
-      try {
-        const order = await mongoose.models.Order.findById(doc._id);
-        if (order && order.status === "pending") {
-          await order.deleteOne();
-          console.log(`Order ${doc._id} auto-deleted after 24h (still pending)`);
-        }
-      } catch (err) {
-        console.error("Failed to auto-delete order:", err);
-      }
-    }, 600 * 60 * 1000); // 10 minutes in milliseconds
-  }
-});
-
+ 
 export default mongoose.models.Order || mongoose.model("Order", orderSchema);
