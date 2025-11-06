@@ -46,18 +46,16 @@ export class MenuItemController {
                 menuItemService.getAllMenuItems(),
                 offerService.getAllOffers(),
             ]);
-            const itemsWithOffers = items.filter(item => {
-                if(item.isAvailable===true){
-                    const offer = offers.find(offer => offer.menuItems.some(menuItemId => menuItemId.toString() === item._id.toString()));
-                    return {
-                        ...item,
-                        offer: offer ? {
-                            title: offer.title,
-                            discountPercent: `${offer.discountPercent}%`,
-                            priceAfterDiscount: item.price * (1 - offer.discountPercent / 100),
-                        } : null,
-                    };
-                }
+            const itemsWithOffers = items.map(item => {
+                const offer = offers.find(offer => offer.menuItems.some(menuItemId => menuItemId.toString() === item._id.toString()));
+                return {
+                    ...item,
+                    offer: offer ? {
+                        title: offer.title,
+                        discountPercent: `${offer.discountPercent}%`,                            
+                        priceAfterDiscount: item.price * (1 - offer.discountPercent / 100),
+                    } : null,
+                };
             });
 
             res.status(200).json({ items: itemsWithOffers });

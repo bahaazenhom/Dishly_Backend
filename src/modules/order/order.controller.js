@@ -10,13 +10,13 @@ export const checkout = async (req, res) => {
   try {
     const userId = req.authUser._id;
     const { 
-      paymentMethod = "cash",
+      paymentMethod,
       customerFullName,
       customerEmail,
       deliveryAddress,
-      phoneNumber
+      phoneNumber, 
     } = req.body;
-
+    
     // Create order from cart with delivery details
     const result = await createOrderFromCart(userId, { 
       paymentMethod,
