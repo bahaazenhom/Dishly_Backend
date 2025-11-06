@@ -94,7 +94,7 @@ orderSchema.pre("save",function(next){
        this.expiresAt = undefined;
      }
      else{
-      this.expiresAt = new Date(Date.now()+60*1000);
+      this.expiresAt = new Date(Date.now()+10*60*1000);
      }
      next();
 });
