@@ -38,6 +38,7 @@ class PaymentController {
           // Clear user cart after successful payment
           const cart = await Cart.findOne({ user: userId });
           if (cart) {
+            console.log("clearing cart items");
             cart.items = [];
             await cart.save();
           }
