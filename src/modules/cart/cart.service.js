@@ -106,7 +106,7 @@ export async function addItems(userId, items) {
       finalPrice = menuItem.price - (menuItem.price * (offer.discountPercent / 100));
     }
 
-    const existing = cart.items.find((i) => i.menuItem._id.toString() === menuItemId.toString());
+    const existing = cart.items.find((i) => i.menuItem?._id.toString() === menuItemId.toString());
     
     if (existing) {
       existing.quantity += quantity;
