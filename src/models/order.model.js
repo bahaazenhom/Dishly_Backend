@@ -44,7 +44,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "completed", "cancelled"],
+      enum: ["pending", "confirmed", "cancelled"],
       default: "pending",
     },
     paymentMethod: {
@@ -90,7 +90,7 @@ const orderSchema = new mongoose.Schema(
  // TTL index
 orderSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 orderSchema.pre("save",function(next){
-     if(this.status==="completed"){
+     if(this.status==="confirmed"){
        this.expiresAt = undefined;
      }
      next();
