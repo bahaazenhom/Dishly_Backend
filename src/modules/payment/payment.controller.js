@@ -46,7 +46,9 @@ class PaymentController {
           // Auto-confirm the order
           await Order.findByIdAndUpdate(
             orderId,
-            { status: "confirmed" },
+            { status: "confirmed",
+              $unset: { expiresAt: "" } 
+            },
             { new: true }
           );
         }

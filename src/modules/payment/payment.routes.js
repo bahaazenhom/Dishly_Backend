@@ -48,6 +48,6 @@ const router = express.Router();
  *       403: { description: Customer access required }
  *       500: { description: Stripe payment error }
  */
-router.post("/checkout", validationMiddleware(checkoutSchema), auth(), authorizationMiddleware(systemRoles.CUSTOMER), paymentController.createCheckoutSession);
+router.post("/checkout",express.raw({ type: "application/json" }), validationMiddleware(checkoutSchema), auth(), authorizationMiddleware(systemRoles.CUSTOMER), paymentController.createCheckoutSession);
 
 export default router;

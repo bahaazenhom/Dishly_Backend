@@ -5,7 +5,7 @@ import paymentService from "../payment/payment.services.js";
 
 export async function createOrderFromCart(userId, orderDetails = {}) {
   const { 
-    paymentMethod = "cash",
+    paymentMethod,
     customerFullName,
     customerEmail,
     deliveryAddress,
@@ -51,36 +51,31 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
     });
   }
 
-  const order = await Order.create({
-    user: userId,
-    items,
-    totalAmount,
-    status: paymentMethod === "cash" ? "confirmed" : "pending",
-    paymentMethod,
-    customerFullName,
-    customerEmail,
-    deliveryAddress,
-    phoneNumber,
-  });
-  console.log("order created");
 
-  // If payment method is card, create Stripe checkout session
-  let stripeSession = null;
-  if (paymentMethod === "card") {
-    console.log('Creating Stripe session for products:', products);
-    // Pass orderId to Stripe so webhook can identify which order to confirm
-    stripeSession = await paymentService.createCheckoutSession(products, order._id.toString());
-    console.log('Stripe session created:', {
-      id: stripeSession?.id,
-      url: stripeSession?.url
+   const status = paymentMethod === 'cash' ? 'confirmed' : 'pending';
+
+    const order = new Order({
+      user: userId,
+      items,
+      totalAmount,
+      status,
+      paymentMethod,
+      customerFullName,
+      customerEmail,
+      deliveryAddress,
+      phoneNumber,
     });
-  }
 
+    // Create Stripe session *after* creating order instance (has _id now)
+    let stripeSession = null;
+    if (paymentMethod === "card") {
+      stripeSession = await paymentService.createCheckoutSession(products, order._id.toString());
+      order.stripeSessionId = stripeSession?.id;
+    }
 
-  console.log('Returning from createOrderFromCart:', {
-    hasOrder: !!order,
-    hasStripeSession: !!stripeSession
-  });
+    // Save order
+    await order.save();
+
 
   return {
     order: await order.populate("items.menuItem"),
@@ -108,7 +103,9 @@ export async function getOrderById(orderId) {
 export async function confirmOrder(orderId) {
   const order = await Order.findByIdAndUpdate(
     orderId,
-    { status: "confirmed" },
+    { status: "confirmed",
+      $unset: { expiresAt: "" }
+     },
     { new: true }
   ).populate("items.menuItem");
 

@@ -76,7 +76,7 @@ const orderSchema = new mongoose.Schema(
       trim: true,
     },
     stripeSessionId:{type : String},
-    exipresAt:{
+    expiresAt:{
       type:Date,
       default: function(){
         return new Date(Date.now()+10*60*1000);
@@ -87,7 +87,8 @@ const orderSchema = new mongoose.Schema(
 );
  // Add TTL stands for Time To Live index after schema definition
  //orderSchema.index({ createdAt: 1 }, { expireAfterSeconds: 24*60*60 }); // 24 hours
-
+ // TTL index
+orderSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 orderSchema.pre("save",function(next){
      if(this.status==="completed"){
        this.expiresAt = undefined;
