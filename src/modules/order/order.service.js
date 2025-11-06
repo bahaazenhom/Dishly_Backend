@@ -1,6 +1,5 @@
 import Order from "../../models/order.model.js";
 import Cart from "../../models/cart.model.js";
-
 import paymentService from "../payment/payment.services.js";
 
 export async function createOrderFromCart(userId, orderDetails = {}) {
@@ -51,31 +50,39 @@ export async function createOrderFromCart(userId, orderDetails = {}) {
     });
   }
 
+  const status = paymentMethod === 'cash' ? 'confirmed' : 'pending';
 
-   const status = paymentMethod === 'cash' ? 'confirmed' : 'pending';
+  const order = new Order({
+    user: userId,
+    items,
+    totalAmount,
+    status,
+    paymentMethod,
+    customerFullName,
+    customerEmail,
+    deliveryAddress,
+    phoneNumber,
+  });
 
-    const order = new Order({
-      user: userId,
-      items,
-      totalAmount,
-      status,
-      paymentMethod,
-      customerFullName,
-      customerEmail,
-      deliveryAddress,
-      phoneNumber,
-    });
+  // Create Stripe session *after* creating order instance (has _id now)
+  let stripeSession = null;
+  if (paymentMethod === "card") {
+    stripeSession = await paymentService.createCheckoutSession(
+      products, 
+      order._id.toString(),
+      userId.toString()
+    );
+    order.stripeSessionId = stripeSession?.id;
+  }
 
-    // Create Stripe session *after* creating order instance (has _id now)
-    let stripeSession = null;
-    if (paymentMethod === "card") {
-      stripeSession = await paymentService.createCheckoutSession(products, order._id.toString());
-      order.stripeSessionId = stripeSession?.id;
-    }
+  // Save order
+  await order.save();
 
-    // Save order
-    await order.save();
-
+  // Clear cart only for cash orders (card orders cleared after payment webhook)
+  if (paymentMethod === 'cash') {
+    cart.items = [];
+    await cart.save();
+  }
 
   return {
     order: await order.populate("items.menuItem"),
@@ -103,12 +110,28 @@ export async function getOrderById(orderId) {
 export async function confirmOrder(orderId) {
   const order = await Order.findByIdAndUpdate(
     orderId,
-    { status: "confirmed",
+    { 
+      status: "confirmed",
       $unset: { expiresAt: "" }
-     },
+    },
     { new: true }
   ).populate("items.menuItem");
 
   if (!order) throw new Error("Order not found");
   return order;
+}
+
+// New function: Cancel order
+export async function cancelOrder(orderId, userId) {
+  const order = await Order.findOne({ _id: orderId, user: userId });
+  
+  if (!order) throw new Error("Order not found");
+  if (order.status === "confirmed") {
+    throw new Error("Cannot cancel confirmed order");
+  }
+  
+  order.status = "cancelled";
+  await order.save();
+  
+  return order.populate("items.menuItem");
 }

@@ -18,7 +18,14 @@ export const confirmSchema = {
   }),
 };
 
-export const getOrderSchema = {
-  params: Joi.object({ orderId: objectId.required() }),
+export const cancelSchema = {
+  body: Joi.object({
+    orderId: objectId.required(),
+  }),
 };
 
+export const getOrderSchema = {
+  params: Joi.object({ 
+    orderId: objectId.required() 
+  }),
+};

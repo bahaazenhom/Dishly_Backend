@@ -6,7 +6,6 @@ const cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
     },
     items: [
       {
@@ -15,32 +14,14 @@ const cartSchema = new mongoose.Schema(
           ref: "MenuItem",
           required: true,
         },
-        quantity: {
-          type: Number,
-          required: true,
-          min: 1,
-          default: 1,
-        },
-        priceAtAddition: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        originalPrice: {
-          type: Number,
-          required: true,
-          min: 0,
-        },
-        discountApplied: {
-          type: Number,
-          default: 0,
-          min: 0,
-          max: 100,
-        },
+        quantity: { type: Number, required: true, min: 1 },
+        priceAtAddition: { type: Number, required: true },
+        originalPrice: { type: Number, required: true },
+        discountApplied: { type: Number, default: 0, min: 0, max: 100 },
       },
     ],
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Cart ||  mongoose.model("Cart", cartSchema);
+export default mongoose.models.Cart || mongoose.model("Cart", cartSchema);

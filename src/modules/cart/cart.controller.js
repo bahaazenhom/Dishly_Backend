@@ -1,9 +1,9 @@
 import {
-  addItem,
   getCartByUser,
   updateItemQuantity,
   removeItem,
   clearCart,
+  addItems,
 } from "./cart.service.js";
 
 export const getCart = async (req, res) => {
@@ -15,18 +15,15 @@ export const getCart = async (req, res) => {
 export const addCartItem = async (req, res) => {
   const userId = req.authUser._id; 
   
-  const { menuItemId, quantity, items } = req.body;
+  const { items } = req.body;
   
   // Support both single item and array of items
   if (items && Array.isArray(items)) {
     // Multiple items
-    const cart = await addItem(userId, items);
+    const cart = await addItems(userId, items);
     res.status(201).json({ cart, message: `${items.length} items added to cart` });
-  } else if (menuItemId) {
-    // Single item
-    const cart = await addItem(userId, menuItemId, quantity);
-    res.status(201).json({ cart });
-  } else {
+  }
+  else {
     res.status(400).json({ error: "Either menuItemId or items array is required" });
   }
 };
