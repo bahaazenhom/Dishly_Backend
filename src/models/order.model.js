@@ -79,7 +79,7 @@ const orderSchema = new mongoose.Schema(
     expiresAt:{
       type:Date,
       default: function(){
-        return new Date(Date.now()+10*60*1000);
+        return new Date(Date.now()+60*60*1000);
       }
     }
   },
@@ -92,6 +92,9 @@ orderSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 orderSchema.pre("save",function(next){
      if(this.status==="confirmed"){
        this.expiresAt = undefined;
+     }
+     else{
+      this.expiresAt = new Date(Date.now()+60*60*1000);
      }
      next();
 });
