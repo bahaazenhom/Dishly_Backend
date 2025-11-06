@@ -26,12 +26,6 @@ export const checkout = async (req, res) => {
       phoneNumber
     });
 
-    console.log('Checkout result:', {
-      hasOrder: !!result.order,
-      hasStripeSession: !!result.stripeSession,
-      stripeSessionUrl: result.stripeSession?.url,
-      paymentMethod
-    });
 
     if (paymentMethod === "cash") {
       return res.status(201).json({
