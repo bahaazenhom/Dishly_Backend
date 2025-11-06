@@ -23,30 +23,26 @@ class PaymentService {
       cancel_url: `${baseUrl}/order-cancel`,
       metadata: {
         orderId: orderId, // Store orderId to identify which order to confirm
-        userId: userId,   // Store userId to identify the user
+        userId: userId, // Store userId to identify the user
       },
     });
 
     return session;
   }
 
-  async handleWebhook(payload, signature) {
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
+  async handleWebhook(rawBody, signature) {
     try {
-      // Verify webhook signature to ensure it's from Stripe
       const event = stripe.webhooks.constructEvent(
-        payload,
+        rawBody,
         signature,
-        webhookSecret
+        process.env.STRIPE_WEBHOOK_SECRET
       );
 
-      return event;
+      return event; // verified event
     } catch (err) {
       throw new Error(`Webhook signature verification failed: ${err.message}`);
     }
   }
-
 }
 
 export default new PaymentService();
