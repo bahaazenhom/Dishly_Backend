@@ -13,7 +13,8 @@ export const getCart = async (req, res) => {
 };
 
 export const addCartItem = async (req, res) => {
-  const userId = req.authUser._id;
+  const userId = req.authUser._id; 
+  
   const { menuItemId, quantity, items } = req.body;
   
   // Support both single item and array of items

@@ -41,7 +41,7 @@ export async function addItem(userId, menuItemId, quantity = 1) {
   }
 
   const cart = await getCartByUser(userId);
-  const existing = cart.items.find((i) => i.menuItem._id.toString() === menuItemId);
+  const existing = cart.items.find((i) => i.menuItem?._id.toString() === menuItemId);
   
   if (existing) {
     existing.quantity += quantity;
