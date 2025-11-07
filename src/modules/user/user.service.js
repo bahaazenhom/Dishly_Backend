@@ -12,7 +12,7 @@ export class UserService {
             const user =new User(userData);
             // confirmation Link
             await user.save();
-            const confirmationLink = `https://fullsnack.obl.ee/user/confirm-email/${user._id}`;
+            const confirmationLink = `https://fullsnack-one.vercel.app/confirm-email/${user._id}`;
             // send email
             const isEmailSent = await sendMail({
                 to: user.email,

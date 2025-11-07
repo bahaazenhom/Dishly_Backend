@@ -56,6 +56,9 @@ export class UserController {
             if (!updatedUser) {
                 return next(new ErrorClass('User not found', 404, 'Validation Error'));
             }
+
+            
+
             const accessToken = generateAccessToken({userId:updatedUser._id});
             const refreshToken = generateRefreshToken({userId:updatedUser._id});
             
