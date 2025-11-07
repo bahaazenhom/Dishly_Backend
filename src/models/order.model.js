@@ -93,11 +93,11 @@ orderSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 // Pre-save hook to handle expiration
 orderSchema.pre("save", function(next){
   if(this.status === "confirmed"){
-    // Remove expiresAt to prevent deletion
-    this.expiresAt = null;
+    // Don't set expiresAt for confirmed orders - delete the field entirely
+    this.expiresAt = undefined;
   }
-  else{
-    // Set expiration for pending/cancelled orders
+  else if(!this.expiresAt){
+    // Set expiration only for pending/cancelled orders that don't have it yet
     this.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
   }
   next();
