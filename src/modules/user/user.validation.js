@@ -31,3 +31,12 @@ export const loginUserSchema = {
         password : Joi.string().required()
     })
 }
+
+export const updateUserSchema = {
+    body: Joi.object({
+        fullName: Joi.string().min(6).max(50).optional(),
+        email: Joi.string().email({minDomainSegments:2,tlds:{allow:['com','net']}}).optional(),
+        age: Joi.number().min(0).optional(),
+        phone: Joi.string().pattern(/^[0-9]{10,15}$/).optional()
+    }).min(1) // At least one field must be provided
+}

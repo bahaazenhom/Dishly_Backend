@@ -38,10 +38,12 @@ const options = {
                         _id: { type: 'string', description: 'User ID' },
                         fullName: { type: 'string', description: 'Full name of the user' },
                         email: { type: 'string', format: 'email', description: 'User email address (unique)' },
-                        gender: { type: 'string', enum: ['male', 'female'], description: 'User gender' },
                         age: { type: 'number', minimum: 1, description: 'User age' },
+                        phone: { type: 'string', description: 'User phone number (10-15 digits)' },
                         role: { type: 'string', enum: ['customer', 'admin'], description: 'User role for authorization' },
                         isConfirmed: { type: 'boolean', description: 'Email confirmation status - must be true to login' },
+                        createdAt: { type: 'string', format: 'date-time', description: 'User registration timestamp' },
+                        updatedAt: { type: 'string', format: 'date-time', description: 'Last user update timestamp' },
                     },
                 },
                 MenuItem: {

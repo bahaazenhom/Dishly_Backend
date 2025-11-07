@@ -2,7 +2,7 @@ import {Router} from "express";
 import {UserController} from "./user.controller.js";
 import { errorHandler } from "../../middlewares/error.middleware.js";
 import {validationMiddleware} from "../../middlewares/validation.middleware.js";
-import { confirmEmailSchema, createUserSchema, loginUserSchema } from "./user.validation.js";
+import { confirmEmailSchema, createUserSchema, loginUserSchema, updateUserSchema } from "./user.validation.js";
 import { authLimiter } from "../../middlewares/rateLimiter.middleware.js";
 import { auth } from "../../middlewares/authentication.middleware.js";
 const router = Router();
@@ -166,6 +166,43 @@ router.post('/logout',validationMiddleware(loginUserSchema),userController.logou
  *       404: { description: User not found }
  */
 router.get('/me',errorHandler(auth()),userController.getCurrentUser);
+
+/**
+ * @swagger
+ * /user/me:
+ *   put:
+ *     tags: [User]
+ *     summary: Update current authenticated user details
+ *     description: Updates user profile information. Cannot update password, role, isConfirmed, or refreshToken through this endpoint.
+ *     security: [{ bearerAuth: [] }]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName: { type: string, minLength: 6, maxLength: 50, example: "John Doe Smith" }
+ *               email: { type: string, format: email, example: "newemail@example.com" }
+ *               age: { type: number, minimum: 0, example: 26 }
+ *               phone: { type: string, pattern: "^[0-9]{10,15}$", example: "1234567890" }
+ *             minProperties: 1
+ *             description: At least one field must be provided for update
+ *     responses:
+ *       200: 
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: "User updated successfully" }
+ *                 user: { $ref: '#/components/schemas/User' }
+ *       400: { description: Validation error - Invalid input or no fields provided }
+ *       401: { description: Unauthorized - Token missing or invalid }
+ *       404: { description: User not found }
+ */
+router.put('/me',errorHandler(auth()),validationMiddleware(updateUserSchema),userController.updateUser);
 
 
 export default router;

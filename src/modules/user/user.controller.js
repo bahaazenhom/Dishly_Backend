@@ -186,5 +186,31 @@ export class UserController {
         }
     }
 
+    async updateUser(req, res, next) {
+        try{
+            const userId = req.authUser._id;
+            const updateData = req.body;
+            
+            // Prevent updating sensitive fields
+            delete updateData.password;
+            delete updateData.role;
+            delete updateData.isConfirmed;
+            delete updateData.refreshToken;
+            
+            const updatedUser = await userService.updateUser(userId, updateData);
+            if (!updatedUser) {
+                return next(new ErrorClass('User not found', 404, 'Not Found Error'));
+            }
+            
+            res.status(200).json({
+                message: 'User updated successfully',
+                user: updatedUser
+            });
+        }
+        catch(error){
+            next(error);
+        }
+    }
+
 }   
     
