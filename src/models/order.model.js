@@ -106,10 +106,19 @@ orderSchema.pre("save", function(next){
 // Pre-update hook to handle expiration when using findByIdAndUpdate
 orderSchema.pre("findOneAndUpdate", function(next){
   const update = this.getUpdate();
-  if(update.status === "confirmed" || update.$set?.status === "confirmed"){
+  
+  // Check if status is being updated to "confirmed"
+  const newStatus = update.status || update.$set?.status;
+  
+  if(newStatus === "confirmed"){
     // Remove expiresAt to prevent deletion
-    this.set({ expiresAt: null });
+    if(update.$set){
+      update.$set.expiresAt = null;
+    } else {
+      update.expiresAt = null;
+    }
   }
+  
   next();
 });
 
