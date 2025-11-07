@@ -1,5 +1,6 @@
 import commentModel from "../../models/comment.model.js";
 import menuItemModel from "../../models/menuItem.model.js";
+import mongoose from "mongoose";
 import { ErrorClass } from "../../utils/error.util.js";
 
 export class CommentService {
@@ -21,7 +22,7 @@ export class CommentService {
         try {
             // Calculate average rating from all comments for this menu item
             const result = await commentModel.aggregate([
-                { $match: { menuItemId: menuItemId } },
+                { $match: { menuItemId: new mongoose.Types.ObjectId(menuItemId) } },
                 { 
                     $group: { 
                         _id: null, 
