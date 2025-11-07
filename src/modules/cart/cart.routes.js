@@ -52,7 +52,15 @@ router.get(
  *   post:
  *     tags: [Cart]
  *     summary: Add item(s) to authenticated user's cart with automatic offer application (Customer only)
- *     description: Adds single or multiple items to cart and automatically applies active offers/discounts. System checks for best available offer and calculates discounted price for each item. Supports both single item and batch addition. Uses authenticated user's ID from JWT token.
+ *     description: |
+ *       Adds single or multiple items to cart and automatically applies active offers/discounts. 
+ *       System checks for best available offer and calculates discounted price for each item. 
+ *       
+ *       **Supports two input formats:**
+ *       1. Single item: `{ "menuItemId": "abc123", "quantity": 2 }`
+ *       2. Multiple items: `{ "items": [{ "menuItemId": "abc123", "quantity": 2 }, { "menuItemId": "def456", "quantity": 1 }] }`
+ *       
+ *       Uses authenticated user's ID from JWT token.
  *     security: [{ bearerAuth: [] }]
  *     requestBody:
  *       required: true
@@ -61,30 +69,52 @@ router.get(
  *           schema:
  *             oneOf:
  *               - type: object
- *                 title: Single Item
+ *                 title: Single Item Format
  *                 required: [menuItemId]
  *                 properties:
- *                   menuItemId: { type: string, example: "507f1f77bcf86cd799439012", description: "Menu item ID to add" }
- *                   quantity: { type: number, minimum: 1, default: 1, example: 2, description: "Quantity to add" }
+ *                   menuItemId: 
+ *                     type: string
+ *                     description: Menu item ID to add
+ *                     example: "507f1f77bcf86cd799439012"
+ *                   quantity: 
+ *                     type: number
+ *                     minimum: 1
+ *                     default: 1
+ *                     description: Quantity to add (defaults to 1 if not provided)
+ *                     example: 2
+ *                 example:
+ *                   menuItemId: "507f1f77bcf86cd799439012"
+ *                   quantity: 2
  *               - type: object
- *                 title: Multiple Items
+ *                 title: Multiple Items Format (Array)
  *                 required: [items]
  *                 properties:
  *                   items: 
  *                     type: array
  *                     minItems: 1
- *                     description: "Array of items to add to cart"
+ *                     description: Array of items to add to cart in batch
  *                     items:
  *                       type: object
  *                       required: [menuItemId]
  *                       properties:
- *                         menuItemId: { type: string, example: "507f1f77bcf86cd799439012" }
- *                         quantity: { type: number, minimum: 1, default: 1, example: 2 }
- *                     example:
- *                       - menuItemId: "507f1f77bcf86cd799439012"
- *                         quantity: 2
- *                       - menuItemId: "507f1f77bcf86cd799439013"
- *                         quantity: 1
+ *                         menuItemId: 
+ *                           type: string
+ *                           description: Menu item ID
+ *                           example: "507f1f77bcf86cd799439012"
+ *                         quantity: 
+ *                           type: number
+ *                           minimum: 1
+ *                           default: 1
+ *                           description: Quantity for this item
+ *                           example: 2
+ *                 example:
+ *                   items:
+ *                     - menuItemId: "507f1f77bcf86cd799439012"
+ *                       quantity: 2
+ *                     - menuItemId: "507f1f77bcf86cd799439013"
+ *                       quantity: 1
+ *                     - menuItemId: "507f1f77bcf86cd799439014"
+ *                       quantity: 3
  *     responses:
  *       201: 
  *         description: Item(s) added to cart with offers applied (if available)
@@ -94,7 +124,7 @@ router.get(
  *               type: object
  *               properties:
  *                 cart: { $ref: '#/components/schemas/Cart' }
- *                 message: { type: string, example: "2 items added to cart" }
+ *                 message: { type: string, example: "3 items added to cart" }
  *       400: { description: Menu item not available or validation error }
  *       401: { description: Unauthorized }
  *       403: { description: Customer access required }
