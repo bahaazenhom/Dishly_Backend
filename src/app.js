@@ -16,18 +16,21 @@ import paymentController from "./modules/payment/payment.controller.js";
 const app = express();
 app.set('trust proxy', 1);
 
-// CORS Configuration for development and production
-app.use(cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? ["https://fullsnack-one.vercel.app"] // Replace with your production domain
-        : ["http://localhost:5173", "http://127.0.0.1:5173", "https://fullsnack-one.vercel.app"], // Development domains // Development domains
-  credentials: true, // Allow credentials (cookies, authorization headers)
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-  exposedHeaders: ['set-cookie'], // Important for accessing cookies
-  maxAge: 86400 // Cache preflight requests for 24 hours
-}));
+// CORS Configuration - Open for all origins (for testing/development)
+app.use(cors());
+
+// CORS Configuration for development and production (commented out)
+// app.use(cors({
+//     origin:
+//       process.env.NODE_ENV === "production"
+//         ? ["https://fullsnack-one.vercel.app"] // Replace with your production domain
+//         : ["http://localhost:5173", "http://127.0.0.1:5173", "https://fullsnack-one.vercel.app"], // Development domains // Development domains
+//   credentials: true, // Allow credentials (cookies, authorization headers)
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+//   exposedHeaders: ['set-cookie'], // Important for accessing cookies
+//   maxAge: 86400 // Cache preflight requests for 24 hours
+// }));
 
 
 //Security: Helmet Middleware 
