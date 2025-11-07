@@ -169,8 +169,8 @@ router.get('/me',errorHandler(auth()),userController.getCurrentUser);
 
 /**
  * @swagger
- * /user/me:
- *   put:
+ * /user/update:
+ *   patch:
  *     tags: [User]
  *     summary: Update current authenticated user details
  *     description: Updates user profile information. Cannot update password, role, isConfirmed, or refreshToken through this endpoint.
@@ -202,7 +202,7 @@ router.get('/me',errorHandler(auth()),userController.getCurrentUser);
  *       401: { description: Unauthorized - Token missing or invalid }
  *       404: { description: User not found }
  */
-router.put('/me',errorHandler(auth()),validationMiddleware(updateUserSchema),userController.updateUser);
+router.patch('/update',errorHandler(auth()),validationMiddleware(updateUserSchema),userController.updateUser);
 
 
 export default router;
