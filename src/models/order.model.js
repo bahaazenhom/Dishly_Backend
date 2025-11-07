@@ -89,14 +89,28 @@ const orderSchema = new mongoose.Schema(
  //orderSchema.index({ createdAt: 1 }, { expireAfterSeconds: 24*60*60 }); // 24 hours
  // TTL index
 orderSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-orderSchema.pre("save",function(next){
-     if(this.status==="confirmed"){
-       this.expiresAt = undefined;
-     }
-     else{
-      this.expiresAt = new Date(Date.now()+10*60*1000);
-     }
-     next();
+
+// Pre-save hook to handle expiration
+orderSchema.pre("save", function(next){
+  if(this.status === "confirmed"){
+    // Remove expiresAt to prevent deletion
+    this.expiresAt = null;
+  }
+  else{
+    // Set expiration for pending/cancelled orders
+    this.expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+  }
+  next();
+});
+
+// Pre-update hook to handle expiration when using findByIdAndUpdate
+orderSchema.pre("findOneAndUpdate", function(next){
+  const update = this.getUpdate();
+  if(update.status === "confirmed" || update.$set?.status === "confirmed"){
+    // Remove expiresAt to prevent deletion
+    this.set({ expiresAt: null });
+  }
+  next();
 });
 
 orderSchema.index({ user: 1, status: 1 });
