@@ -20,8 +20,8 @@ app.set('trust proxy', 1);
 app.use(cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? ["https://fullsnack-liard.vercel.app/"] // Replace with your production domain
-        : ["http://localhost:5173", "http://127.0.0.1:5173", "https://fullsnack-liard.vercel.app/"], // Development domains // Development domains
+        ? ["https://fullsnack-one.vercel.app"] // Replace with your production domain
+        : ["http://localhost:5173", "http://127.0.0.1:5173", "https://fullsnack-one.vercel.app"], // Development domains // Development domains
   credentials: true, // Allow credentials (cookies, authorization headers)
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
